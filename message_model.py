@@ -16,12 +16,12 @@ logger = logging.getLogger(__name__)
 
 # Expo configuration
 EXPO_PUSH_ENDPOINT = "https://exp.host/--/api/v2/push/send"
-# EXPO_PUSH_TOKENS = [
-#     "ExponentPushToken[mv2ch1Dkk2mYguyHPSpWbD]"
-# ]
+
+load_dotenv()
+
 # Access the token
-EXPO_PUSH_TOKEN = os.getenv('EXPO_PUSH_TOKENS')
-print("EXPO_PUSH_TOKEN:", EXPO_PUSH_TOKEN)
+expo_push_token = os.getenv('EXPO_PUSH_TOKENS')
+print("EXPO_PUSH_TOKEN:", expo_push_token)
 
 # DynamoDB Table Name
 DYNAMODB_TABLE = "MedelLogs"
@@ -49,7 +49,7 @@ class MessModel:
         if model_name not in self.AVAILABLE_MODELS:
             raise ValueError(f"Invalid model name. Available models: {', '.join(self.AVAILABLE_MODELS.keys())}")
         
-        load_dotenv()
+        # load_dotenv()
         self.model_config = self.AVAILABLE_MODELS[model_name]
 
         # Log the API key for GROK to check if it's loaded properly
@@ -66,7 +66,7 @@ class MessModel:
         try:
             model = llm.get_model(self.model_config.model_id)
             model.key = self.model_config.api_key
-            prompt = "A mindfulness reminder."
+            prompt = "Hello, my name is Teed. I'd like a reminder to be mindful please."
             response = model.prompt(prompt)
             message = str(response) if response else "No message generated."
             # logger.info(f"Message generated: {message}")
@@ -93,7 +93,7 @@ class MessModel:
         title = "Lean In"
         short_message = (message[:50] + "...") if len(message) > 50 else message
         return {
-            "to": EXPO_PUSH_TOKEN,
+            "to": expo_push_token,
             "sound": "default",
             "title": title,
             "body": short_message,

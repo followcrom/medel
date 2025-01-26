@@ -4,11 +4,11 @@
 
 ---
 
-`model_message.py` generates a message from an llm and sends it as a push notification to the **RanDOM WisDOM** app. It logs the message to DynamoDB.
+`model_message.py` generates a message from an LLM and sends it as a push notification to the **RanDOM WisDOM** app. It then logs the message to DynamoDB.
 
 ### 🤖 llm
 
-👉 [swill's llm usgae](https://llm.datasette.io/en/stable/usage.html)
+👉 [swill's llm documentation](https://llm.datasette.io/en/stable/usage.html)
 
 Generates a message from one of the following:
 
@@ -20,7 +20,9 @@ The message is then sent as a push notification to the **RanDOM WisDOM** app.
 
 ### 📝 DynamoDB
 
-The _date, model and message_ are logged to the `MedelLogs` DynamoDB table.
+The _date, model_ and _message_ are logged to the `MedelLogs` DynamoDB table.
+
+👉 [MedelLogs](https://eu-west-2.console.aws.amazon.com/dynamodbv2/home?region=eu-west-2#table?name=MedelLogs)
 
 ---
 
@@ -47,6 +49,8 @@ Explanation:
 - `0 0 * * *`: Runs the cron job daily at midnight.
 
 - `sleep $((RANDOM % 86400))`: Pauses the job for a random duration between 0 to 86400 seconds (24 hours).
+
+<br>
 
 ### 2️⃣ Option 2: Systemd Timer ⏱️
 
@@ -113,6 +117,8 @@ Output:
 
 ---
 
+<br>
+
 ## ֎ OpenAI Models 🧿
  
 Specific model usage can be tied to API keys. Allowed models can be set on a project level. Go to `Project -> Limits` on the [OpenAI dashboard](https://platform.openai.com/settings/proj_WJ4UVWtOs47BaFcQUjpLuk82) and access the Model usage section.
@@ -133,6 +139,8 @@ aws sts get-caller-identity
 ```
 
 ---
+
+<br>
 
 ## 🤔 Issues 🛠️
 
@@ -162,6 +170,8 @@ llm keys path
 # Output
 /home/followcrom/.config/io.datasette.llm/keys.json
 ```
+
+<br>
 
 ## 📅 Commit Activity 🕹️
 
