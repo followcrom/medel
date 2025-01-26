@@ -1,0 +1,10 @@
+# Ignore .env file
+.env
+
+# Ignore old versions
+message_model_llm_claude.py
+message_model_llm.py
+model_message_openai.py
+
+# Ignore the imgs folder
+imgs/
