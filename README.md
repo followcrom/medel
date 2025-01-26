@@ -172,6 +172,6 @@ llm keys path
 
 🌍 followCrom: [followcrom.com](https://followcrom.com/index.html) 🌐
 
-📫 followCrom: [get in touch](https://followcrom.com/contact/contact.php) 📧
+📫 followCrom: [get in touch](https://followcrom.com/contact/contact.php) 👋
 
 [![Static Badge](https://img.shields.io/badge/followcrom-online-blue)](http://followcrom.com)
