@@ -38,22 +38,20 @@ class LLMConfig:
 
 class MessModel:
     AVAILABLE_MODELS = {
-        'openai': LLMConfig('o1 Mini', 'o1-mini', 'OPENAI_API_KEY'),
+        'openai': LLMConfig('GPT-4o', 'gpt-4o', 'OPENAI_API_KEY'),
         'claude': LLMConfig('Claude', 'claude-3.5-sonnet', 'ANTHROPIC_API_KEY'),
         'gemini': LLMConfig('Gemini', 'gemini-1.5-flash-latest', 'GOOGLE_API_KEY'),
-        'llama3': LLMConfig('Llama3', 'llama3', 'GROK'),
-        'mixtral': LLMConfig('Mixtral', 'mixtral-7b', 'GROK'),
+        'llama3': LLMConfig('Llama3', 'llama3', 'GROQ'),
+        'mixtral': LLMConfig('Mixtral', 'mixtral-7b', 'GROQ'),
+        'grok': LLMConfig('Grok', 'grok-beta', 'XAI_API_KEY'),
     }
 
-    def __init__(self, model_name: str = 'llama3'):
+    def __init__(self, model_name: str = 'grok'):
         if model_name not in self.AVAILABLE_MODELS:
             raise ValueError(f"Invalid model name. Available models: {', '.join(self.AVAILABLE_MODELS.keys())}")
         
         # load_dotenv()
         self.model_config = self.AVAILABLE_MODELS[model_name]
-
-        # Log the API key for GROK to check if it's loaded properly
-        # logger.info(f"API key for GROK: {os.getenv('GROK')}")
 
         # Initialize DynamoDB client
         try:
@@ -66,7 +64,7 @@ class MessModel:
         try:
             model = llm.get_model(self.model_config.model_id)
             model.key = self.model_config.api_key
-            prompt = "Hello, my name is Teed. I'd like a reminder to be mindful please."
+            prompt = "Hi! My name is Teed. I'd like a short reminder to be mindful please."
             response = model.prompt(prompt)
             message = str(response) if response else "No message generated."
             # logger.info(f"Message generated: {message}")
@@ -90,7 +88,7 @@ class MessModel:
             logger.error(f"Failed to log to DynamoDB: {e}")
 
     def create_notification_payload(self, message: str) -> Dict[str, Any]:
-        title = "Lean In"
+        title = "Message from a Model"
         short_message = (message[:50] + "...") if len(message) > 50 else message
         return {
             "to": expo_push_token,
@@ -99,7 +97,7 @@ class MessModel:
             "body": short_message,
             "data": {
                 "id": "1",
-                "title": title,
+                "title": "Lean In",
                 "body": message,
                 "imageUrl": "https://followcrom-online.s3.eu-west-2.amazonaws.com/notifications/images/zen.png",
                 "url": "https://followcrom.com",
@@ -140,7 +138,7 @@ if __name__ == "__main__":
 
     try:
         parser = argparse.ArgumentParser()
-        parser.add_argument('--model', type=str, default='llama3')
+        parser.add_argument('--model', type=str, default='grok')
         args = parser.parse_args()
 
         model_name = args.model

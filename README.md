@@ -10,9 +10,17 @@
 
 👉 [swill's llm documentation](https://llm.datasette.io/en/stable/usage.html)
 
+Get the path to the keys directory:
+
+```bash
+dirname "$(llm keys path)"
+```
+
 Generates a message from one of the following:
 
-`MODELS=("llama3" "claude" "gemini" "mixtral" "openai")`
+```bash
+MODELS=("llama3" "claude" "gemini" "mixtral" "openai" "grok")`
+```
 
 ### 📲 Expo
 
@@ -106,15 +114,32 @@ systemctl start medel.timer
 Check when the job is next scheduled to run using the following command:
 
 ```bash
+systemctl list-timers | grep medel
+
 systemctl list-timers --all
 ```
 
 Output:
 ```bash
-| NEXT                        | LEFT          | LAST          | PASSED       | UNIT            | ACTIVATES |
-| Mon 2025-01-27 08:29:59 GMT | 21h left      | n/a           | n/a          | medel.timer     | medel.service |
+| NEXT                        | LEFT          | LAST                        | PASSED         | UNIT          | ACTIVATES |
+| Tue 2025-01-28 16:47:51 GMT | 19h left      | Mon 2025-01-27 08:30:07 GMT | 12h ago        | medel.timer   | medel.service |
 ```
 
+#### 5, Debugging Steps
+
+Check Journal logs:
+
+```bash
+journalctl -u medel.service
+
+journalctl -u medel.timer
+```
+
+Check Journal logs for errors:
+
+```bash
+journalctl -u medel.service -p err
+```
 ---
 
 <br>
@@ -177,6 +202,7 @@ llm keys path
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/followcrom/medel)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/followcrom/medel)
+![GitHub repo size](https://img.shields.io/github/repo-size/followcrom/medel)
 
 ## ✍ Authors 
 
