@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import os
 import sys
 import requests
+import random
 import logging
 from dataclasses import dataclass
 from typing import Optional, Dict, Any
@@ -21,7 +22,6 @@ load_dotenv()
 
 # Access the token
 expo_push_token = os.getenv('EXPO_PUSH_TOKENS')
-print("EXPO_PUSH_TOKEN:", expo_push_token)
 
 # DynamoDB Table Name
 DYNAMODB_TABLE = "MedelLogs"
@@ -90,16 +90,18 @@ class MessModel:
     def create_notification_payload(self, message: str) -> Dict[str, Any]:
         title = "Message from a Model"
         short_message = (message[:50] + "...") if len(message) > 50 else message
+        selected_image = random.randint(1, 9)
+
         return {
             "to": expo_push_token,
             "sound": "default",
             "title": title,
             "body": short_message,
             "data": {
-                "id": "1",
+                "id": "Medel",
                 "title": "Lean In",
                 "body": message,
-                "imageUrl": "https://followcrom-online.s3.eu-west-2.amazonaws.com/notifications/images/zen.png",
+                "imageUrl": f"https://followcrom-online.s3.eu-west-2.amazonaws.com/notifications/images/medel_{selected_image}.png",
                 "url": "https://followcrom.com",
             },
             "ttl": 60,
