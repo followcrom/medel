@@ -101,7 +101,7 @@ class MessModel:
                 "id": "Medel",
                 "title": "Lean In",
                 "body": message,
-                "imageUrl": f"https://followcrom-online.s3.eu-west-2.amazonaws.com/notifications/images/medel_{selected_image}.png",
+                "imageUrl": f"https://followcrom-online.s3.eu-west-2.amazonaws.com/notifications/images/medel_{selected_image}.jpg",
                 "url": "https://followcrom.com",
             },
             "ttl": 60,
