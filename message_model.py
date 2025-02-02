@@ -26,6 +26,15 @@ expo_push_token = os.getenv('EXPO_PUSH_TOKENS')
 # DynamoDB Table Name
 DYNAMODB_TABLE = "MedelLogs"
 
+prompts = [
+    "Hi, I'm Teed. Please could you provide a brief, practical reminder about mindfulness that I can use today?",
+    "Hi, I'm Teed. I sometimes struggle with catastrophic thinking. Could you share some short and easy coping strategies that have helped others in similar situations?",
+    "Hi, I'm Teed. Could you share a brief, meaningful memento mori reflection to help me maintain perspective on life?",
+    "Hello, I'm Teed. When I experience social anxiety, what are some immediate techniques I can use to ground myself? Please keep it short and practical.",
+    "Hello, my name is Teed. When life seems like an unending series of complications, how can I remember to be grateful for all the wonderful things we have? Please keep it brief.",
+    "Life is so rich, isn't it?",
+]
+
 @dataclass
 class LLMConfig:
     name: str
@@ -64,7 +73,7 @@ class MessModel:
         try:
             model = llm.get_model(self.model_config.model_id)
             model.key = self.model_config.api_key
-            prompt = "Hi! My name is Teed. I'd like a short reminder to be mindful please."
+            prompt = random.choice(prompts)
             response = model.prompt(prompt)
             message = str(response) if response else "No message generated."
             # logger.info(f"Message generated: {message}")
@@ -98,8 +107,8 @@ class MessModel:
             "title": title,
             "body": short_message,
             "data": {
-                "id": "Medel",
-                "title": "Lean In",
+                "id": self.model_config.name,  # Use the name from LLMConfig
+                "title": "Lean In, Breath Out",
                 "body": message,
                 "imageUrl": f"https://followcrom-online.s3.eu-west-2.amazonaws.com/notifications/images/medel_{selected_image}.jpg",
                 "url": "https://followcrom.com",
