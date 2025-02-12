@@ -53,6 +53,7 @@ class MessModel:
         'llama3': LLMConfig('Llama3', 'llama3', 'GROQ'),
         'mixtral': LLMConfig('Mixtral', 'mixtral-7b', 'GROQ'),
         'grok': LLMConfig('Grok', 'grok-beta', 'XAI_API_KEY'),
+        'bedrock': LLMConfig('Bedrock', 'nova-lite', 'AWS_API_KEY'),
     }
 
     def __init__(self, model_name: str = 'grok'):
@@ -149,7 +150,7 @@ if __name__ == "__main__":
 
     try:
         parser = argparse.ArgumentParser()
-        parser.add_argument('--model', type=str, default='grok')
+        parser.add_argument('--model', type=str, default='bedrock')
         args = parser.parse_args()
 
         model_name = args.model

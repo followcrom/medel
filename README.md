@@ -1,4 +1,4 @@
-# 💌 Message from a Model 💋 📨
+# 💌 Message from a Model 📨
 
 🖥️ Run in `swilly` 🕹️
 
@@ -19,7 +19,7 @@ dirname "$(llm keys path)"
 Generates a message from one of the following:
 
 ```bash
-MODELS=("llama3" "claude" "gemini" "mixtral" "openai" "grok")`
+MODELS=("llama3" "claude" "gemini" "mixtral" "openai" "grok" "bedrock")
 ```
 
 ### 📲 Expo
