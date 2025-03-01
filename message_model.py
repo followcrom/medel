@@ -100,7 +100,7 @@ class MessModel:
                     'message': {'S': message}
                 }
             )
-            logger.info(f"Logged to DynamoDB: date={date}, model={model}, message={message}")
+            logger.info(f"Logged to DynamoDB: date={date}, model={model}")
         except (BotoCoreError, ClientError) as e:
             logger.error(f"Failed to log to DynamoDB: {e}")
 
