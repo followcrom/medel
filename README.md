@@ -185,7 +185,7 @@ aws sts get-caller-identity
 
 - On installing DeepSeek models on the **dobox** (in the domdom_venv) they were not found until I added the API key. This is not the case locally.
 
-ALTHOUGH, most of the keys (apart from grok) are set in the local `keys.json` file, so honestly not sure here.
+_However_, most of the keys (apart from grok) are set in the local `keys.json` file, so honestly not sure here.
 
 2, `model_message.py` was generating an _API key not found_ error when calling the groq models on the **dobox** BUT NOT locally. I had to `llm keys set groq` in the **dobox** (in the domdom_venv) to get the groq models to work. (The groq key is set locally, but that was not the issue as I'm calling the API keys from the `.env` file.)
 
