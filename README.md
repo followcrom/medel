@@ -181,15 +181,13 @@ aws sts get-caller-identity
 
 ## 🤔 Issues 🛠️
 
-1. An issue with the models on the **dobox** not being found until you set the API key, using `llm keys set`. 🤔
+1, An issue with the models on the **dobox** not being found until you set the API key, using `llm keys set`. 🤔
 
 - On installing DeepSeek models on the **dobox** (in the domdom_venv) they were not found until I added the API key. This is not the case locally.
 
-- I had to set the API key for the groq models in `model_message.py` to get them to work on the **dobox**. This was not the case locally.
-
 ALTHOUGH, most of the keys (apart from grok) are set in the local `keys.json` file, so honestly not sure here.
 
-2. `model_message.py` was generating an _API key not found_ error when calling the groq models on the **dobox** BUT NOT locally. I had to `llm keys set groq` in the **dobox** (in the domdom_venv) to get the groq models to work. (The groq key is set locally, but that was not the issue as I'm calling the API keys from the `.env` file.)
+2, `model_message.py` was generating an _API key not found_ error when calling the groq models on the **dobox** BUT NOT locally. I had to `llm keys set groq` in the **dobox** (in the domdom_venv) to get the groq models to work. (The groq key is set locally, but that was not the issue as I'm calling the API keys from the `.env` file.)
 
 I knew that `notifications_team.py` was successfully calling the groq models from the **dobox**, and the code was almost identical. So I compared the two files and found the issue. 😎👌🔥
 
