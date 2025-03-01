@@ -27,11 +27,17 @@ expo_push_token = os.getenv('EXPO_PUSH_TOKENS')
 DYNAMODB_TABLE = "MedelLogs"
 
 prompts = [
-    "Hi, I'm Teed. Please could you provide a brief, practical reminder about mindfulness that I can use today?",
-    "Hi, I'm Teed. I sometimes struggle with catastrophic thinking. Could you share some short and easy coping strategies that have helped others in similar situations?",
-    "Hi, I'm Teed. Could you share a brief, meaningful memento mori reflection to help me maintain perspective on life?",
-    "Hello, I'm Teed. When I experience social anxiety, what are some immediate techniques I can use to ground myself? Please keep it short and practical.",
-    "Hello, my name is Teed. When life seems like an unending series of complications, how can I remember to be grateful for all the wonderful things we have? Please keep it brief.",
+    "Hey, I'm Teed. Hit me with a bite-sized mindfulness reminder to keep me present today.",
+    "Hey, I'm Teed. Got a quick hack for shutting down catastrophic thoughts before they spiral?",
+    "Hey, I'm Teed. Give me a punchy memento mori reminder — life's short, I wanna make it count.",
+    "Hi, I'm Teed. Social anxiety creeping in? Share a fast, effective grounding technique, please!",
+    "Hi, I'm Teed. Life's messy, but beautiful. How do I instantly tap into gratitude when I forget?",
+    "Isn't it wild that we exist at all?",
+    "Hey, I'm Teed. Drop a micro-dose of perspective — something to keep me centered today.",
+    "Hi, I'm Teed. What's a super simple thought shift I can use to turn a tough day around?",
+    "Hey, I'm Teed. Remind me why even small joys are worth savoring.",
+    "Life's a weird, wonderful ride - what's a quick mantra to enjoy the trip?",
+    "Hey, I'm Teed. How do I stop overthinking and just be here now?",
     "Life is so rich, isn't it?",
 ]
 
@@ -48,15 +54,16 @@ class LLMConfig:
 class MessModel:
     AVAILABLE_MODELS = {
         'openai': LLMConfig('GPT-4o', 'gpt-4o', 'OPENAI_API_KEY'),
-        'claude': LLMConfig('Claude', 'claude-3.5-sonnet', 'ANTHROPIC_API_KEY'),
-        'gemini': LLMConfig('Gemini', 'gemini-1.5-flash-latest', 'GOOGLE_API_KEY'),
+        'claude': LLMConfig('Claude', 'claude-3.7-sonnet', 'ANTHROPIC_API_KEY'),
+        'gemini': LLMConfig('Gemini', 'gemini-2.0-flash', 'GOOGLE_API_KEY'),
         'llama3': LLMConfig('Llama3', 'llama3', 'GROQ'),
         'mixtral': LLMConfig('Mixtral', 'mixtral-7b', 'GROQ'),
         'grok': LLMConfig('Grok', 'grok-beta', 'XAI_API_KEY'),
         'bedrock': LLMConfig('Bedrock', 'nova-lite', 'AWS_API_KEY'),
+        'deepseek': LLMConfig('Deepseek', 'deepseek-chat', 'DEEPSEEK_API_KEY'),
     }
 
-    def __init__(self, model_name: str = 'grok'):
+    def __init__(self, model_name: str = 'deepseek'):
         if model_name not in self.AVAILABLE_MODELS:
             raise ValueError(f"Invalid model name. Available models: {', '.join(self.AVAILABLE_MODELS.keys())}")
         
@@ -150,7 +157,7 @@ if __name__ == "__main__":
 
     try:
         parser = argparse.ArgumentParser()
-        parser.add_argument('--model', type=str, default='bedrock')
+        parser.add_argument('--model', type=str, default='deepseek')
         args = parser.parse_args()
 
         model_name = args.model
