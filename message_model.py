@@ -39,6 +39,19 @@ prompts = [
     "Life's a weird, wonderful ride - what's a quick mantra to enjoy the trip?",
     "Hey, I'm Teed. How do I stop overthinking and just be here now?",
     "Life is so rich, isn't it?",
+    "Hi, I'm Teed. What's a 30-second reset when anxiety starts creeping in?",
+    "Hey, I'm Teed. Need a quick reality check to snap out of negative self-talk.",
+    "Hey, I'm Teed. Drop a zen-like whisper to help me detach from today's chaos.",
+    "Hi, I'm Teed. What's a lightning-fast way to remember my own resilience?",
+    "Hey, I'm Teed. Give me a pocket-sized perspective shifter right now.",
+    "Hi, I'm Teed. How do I interrupt my brain's default spiral of worry?",
+    "Hey, I'm Teed. Serve me a shot of instant self-compassion.",
+    "Hey, I'm Teed. How do I cultivate stillness in the middle of my storm?",
+    "Hola, soy Teed. Dame un micro-mantra para interrumpir mi autojuicio.",
+    "Oye, soy Teed. ¿Cuál es el camino más rápido para volver a mi centro?",
+    "Hola, soy Teed. ¿Cómo recuerdo que este momento es suficiente?", 
+    "Oye, soy Teed. Susurra un recordatorio de mi propia fuerza silenciosa.",
+    "Hola, soy Teed. ¿Qué rayo de perspectiva puedo tener cuando todo parece estancado?"
 ]
 
 @dataclass
@@ -57,13 +70,14 @@ class MessModel:
         'claude': LLMConfig('Claude', 'claude-3.7-sonnet', 'ANTHROPIC_API_KEY'),
         'gemini': LLMConfig('Gemini', 'gemini-2.0-flash', 'GOOGLE_API_KEY'),
         'llama3': LLMConfig('Llama3', 'llama3', 'GROQ'),
-        'mixtral': LLMConfig('Mixtral', 'mixtral-7b', 'GROQ'),
+        'o1': LLMConfig('o1', 'o1', 'OPENAI_API_KEY'),
         'grok': LLMConfig('Grok', 'grok-beta', 'XAI_API_KEY'),
         'bedrock': LLMConfig('Bedrock', 'nova-lite', 'AWS_API_KEY'),
         'deepseek': LLMConfig('Deepseek', 'deepseek-chat', 'DEEPSEEK_API_KEY'),
+        'mistral': LLMConfig('Mistral', 'mistral-large', 'MISTRAL_API_KEY'),
     }
 
-    def __init__(self, model_name: str = 'deepseek'):
+    def __init__(self, model_name: str = 'mistral'):
         if model_name not in self.AVAILABLE_MODELS:
             raise ValueError(f"Invalid model name. Available models: {', '.join(self.AVAILABLE_MODELS.keys())}")
         
@@ -157,7 +171,7 @@ if __name__ == "__main__":
 
     try:
         parser = argparse.ArgumentParser()
-        parser.add_argument('--model', type=str, default='deepseek')
+        parser.add_argument('--model', type=str, default='o1') # Model you want to use
         args = parser.parse_args()
 
         model_name = args.model

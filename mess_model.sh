@@ -10,7 +10,7 @@ SCRIPT_PATH="/var/www/domdom/message_model.py"
 LOG_FILE="/var/www/domdom/medel_analysis.log"
 
 # Define array of available analyzers
-MODELS=("llama3" "claude" "gemini" "mixtral" "openai" "grok" "bedrock" "deepseek")
+MODELS=("llama3" "claude" "gemini" "o1" "openai" "grok" "bedrock" "deepseek" "mistral")
 
 # Randomly select an analyzer
 SELECTED_MODEL=${MODELS[$RANDOM % ${#MODELS[@]}]}
