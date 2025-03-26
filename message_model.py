@@ -27,26 +27,26 @@ expo_push_token = os.getenv('EXPO_PUSH_TOKENS')
 DYNAMODB_TABLE = "MedelLogs"
 
 prompts = [
-    "Hey, I'm Teed. Hit me with a bite-sized mindfulness reminder to keep me present today.",
-    "Hey, I'm Teed. Got a quick hack for shutting down catastrophic thoughts before they spiral?",
-    "Hey, I'm Teed. Give me a punchy memento mori reminder — life's short, I wanna make it count.",
-    "Hi, I'm Teed. Social anxiety creeping in? Share a fast, effective grounding technique, please!",
-    "Hi, I'm Teed. Life's messy, but beautiful. How do I instantly tap into gratitude when I forget?",
-    "Isn't it wild that we exist at all?",
-    "Hey, I'm Teed. Drop a micro-dose of perspective — something to keep me centered today.",
-    "Hi, I'm Teed. What's a super simple thought shift I can use to turn a tough day around?",
-    "Hey, I'm Teed. Remind me why even small joys are worth savoring.",
-    "Life's a weird, wonderful ride - what's a quick mantra to enjoy the trip?",
-    "Hey, I'm Teed. How do I stop overthinking and just be here now?",
+    "Hey, I'm Teed. Hit me with a bite-sized mindfulness reminder to keep me present today. Keep it tight and practical.",
+    "Hey, I'm Teed. Got a quick hack for shutting down catastrophic thoughts before they spiral? Keep your answer crisp and direct.",
+    "Hey, I'm Teed. Give me a punchy memento mori reminder — life's short, I wanna make it count. Keep it tight and practical.",
+    "Hi, I'm Teed. Are we all psychologically fragile? Keep your answer crisp and direct.",
+    "Hi, I'm Teed. Life's messy, but beautiful. How do I instantly tap into gratitude when I forget? Keep it tight and practical.",
+    "Isn't it wild that we exist at all? Keep your answer crisp and direct.",
+    "Hey, I'm Teed. Drop a micro-dose of perspective — something to keep me centered today. Keep your answer crisp and direct.",
+    "Hi, I'm Teed. What's a super simple thought shift I can use to turn a tough day around? Keep it tight and practical.",
+    "Hey, I'm Teed. Remind me why even small joys are worth savoring. Keep your answer crisp and direct.",
+    "Life's a weird, wonderful ride - what's a quick mantra to enjoy the trip? Keep it tight and practical.",
+    "Hey, I'm Teed. How do I stop overthinking and just be here now? Keep your answer crisp and direct.",
     "Life is so rich, isn't it?",
-    "Hi, I'm Teed. What's a 30-second reset when anxiety starts creeping in?",
-    "Hey, I'm Teed. Need a quick reality check to snap out of negative self-talk.",
-    "Hey, I'm Teed. Drop a zen-like whisper to help me detach from today's chaos.",
-    "Hi, I'm Teed. What's a lightning-fast way to remember my own resilience?",
-    "Hey, I'm Teed. Give me a pocket-sized perspective shifter right now.",
-    "Hi, I'm Teed. How do I interrupt my brain's default spiral of worry?",
-    "Hey, I'm Teed. Serve me a shot of instant self-compassion.",
-    "Hey, I'm Teed. How do I cultivate stillness in the middle of my storm?",
+    "Hi, I'm Teed. What's a 30-second reset when anxiety starts creeping in? Keep your answer crisp and direct.",
+    "Hey, I'm Teed. Need a quick reality check to snap out of negative self-talk. Keep it tight and practical.",
+    "Hey, I'm Teed. Drop a zen-like whisper to help me detach from today's chaos. Keep your answer crisp and direct.",
+    "Hi, I'm Teed. What's a lightning-fast way to remember my own resilience? Keep it tight and practical.",
+    "Hey, I'm Teed. Give me a pocket-sized perspective shifter right now. Keep your answer crisp and direct.",
+    "Hi, I'm Teed. How do I interrupt my brain's default spiral of worry? Keep it tight and practical.",
+    "Hey, I'm Teed. Serve me a shot of instant self-compassion. Keep your answer crisp and direct.",
+    "Hey, I'm Teed. How do I cultivate stillness in the middle of my storm? Keep it tight and practical.",
     "Hola, soy Teed. Dame un micro-mantra para interrumpir mi autojuicio.",
     "Oye, soy Teed. ¿Cuál es el camino más rápido para volver a mi centro?",
     "Hola, soy Teed. ¿Cómo recuerdo que este momento es suficiente?", 
@@ -121,7 +121,7 @@ class MessModel:
     def create_notification_payload(self, message: str) -> Dict[str, Any]:
         title = "Message from a Model"
         short_message = (message[:50] + "...") if len(message) > 50 else message
-        selected_image = random.randint(1, 9)
+        selected_image = random.randint(1, 15)
 
         return {
             "to": expo_push_token,
