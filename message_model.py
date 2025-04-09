@@ -130,7 +130,17 @@ class MessModel:
             "body": short_message,
             "data": {
                 "id": self.model_config.name,  # Use the name from LLMConfig
-                "title": "Lean In, Breath Out",
+                "title": random.choice([
+                    "Pause. Breathe. Be.",
+                    "A Message from the Machine",
+                    "The Computer Speaks",
+                    "Robot Wisdom",
+                    "Mindfulness in the Machine",
+                    "The AI Oracle Speaks",
+                    "The Voice of Reason",
+                    "The Digital Sage",
+                    "The Computer's Counsel",
+                ]),
                 "body": message,
                 "imageUrl": f"https://followcrom-online.s3.eu-west-2.amazonaws.com/notifications/images/medel_{selected_image}.jpg",
                 "url": "https://followcrom.com",
