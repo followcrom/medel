@@ -15,6 +15,9 @@ from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError, 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# suppress the INFO level logs from botocore
+logging.getLogger('botocore').setLevel(logging.WARNING)
+
 # Expo configuration
 EXPO_PUSH_ENDPOINT = "https://exp.host/--/api/v2/push/send"
 
@@ -33,13 +36,12 @@ prompts = [
     "Hi, I'm Teed. Are we all psychologically fragile? Keep your answer crisp and direct.",
     "Hi, I'm Teed. Life's messy, but beautiful. How do I instantly tap into gratitude when I forget? Keep it tight and practical.",
     "Isn't it wild that we exist at all? Keep your answer crisp and direct.",
-    "Hey, I'm Teed. Drop a micro-dose of perspective — something to keep me centered today. Keep your answer crisp and direct.",
+    "Hey, I'm Teed. Drop a micro-dose of perspective — something to keep me centered today. Keep your answer brief and direct.",
     "Hi, I'm Teed. What's a super simple thought shift I can use to turn a tough day around? Keep it tight and practical.",
     "Hey, I'm Teed. Remind me why even small joys are worth savoring. Keep your answer crisp and direct.",
     "Life's a weird, wonderful ride - what's a quick mantra to enjoy the trip? Keep it tight and practical.",
     "Hey, I'm Teed. How do I stop overthinking and just be here now? Keep your answer crisp and direct.",
     "Life is so rich, isn't it?",
-    "Hi, I'm Teed. What's a 30-second reset when anxiety starts creeping in? Keep your answer crisp and direct.",
     "Hey, I'm Teed. Need a quick reality check to snap out of negative self-talk. Keep it tight and practical.",
     "Hey, I'm Teed. Drop a zen-like whisper to help me detach from today's chaos. Keep your answer crisp and direct.",
     "Hi, I'm Teed. What's a lightning-fast way to remember my own resilience? Keep it tight and practical.",
@@ -66,14 +68,14 @@ class LLMConfig:
 
 class MessModel:
     AVAILABLE_MODELS = {
-        'openai': LLMConfig('GPT-4o', 'gpt-4o', 'OPENAI_API_KEY'),
+        'gpt4': LLMConfig('GPT-4o', 'gpt-4o', 'OPENAI_API_KEY'),
         'claude': LLMConfig('Claude', 'claude-3.7-sonnet', 'ANTHROPIC_API_KEY'),
-        'gemini': LLMConfig('Gemini', 'gemini-2.0-flash', 'GOOGLE_API_KEY'),
+        'gemini': LLMConfig('Gemini', 'gemini-2.0-pro-exp-02-05', 'GOOGLE_API_KEY'),
         'llama3': LLMConfig('Llama3', 'llama3', 'GROQ'),
         'o1': LLMConfig('o1', 'o1', 'OPENAI_API_KEY'),
         'grok': LLMConfig('Grok', 'grok-beta', 'XAI_API_KEY'),
-        'bedrock': LLMConfig('Bedrock', 'nova-lite', 'AWS_API_KEY'),
-        'deepseek': LLMConfig('Deepseek', 'deepseek-chat', 'DEEPSEEK_API_KEY'),
+        'bedrock': LLMConfig('Bedrock', 'nova-pro', 'AWS_API_KEY'),
+        'deepseek': LLMConfig('Deepseek', 'deepseek-reasoner', 'DEEPSEEK_API_KEY'),
         'mistral': LLMConfig('Mistral', 'mistral-large', 'MISTRAL_API_KEY'),
     }
 
@@ -131,7 +133,6 @@ class MessModel:
             "data": {
                 "id": self.model_config.name,  # Use the name from LLMConfig
                 "title": random.choice([
-                    "Pause. Breathe. Be.",
                     "A Message from the Machine",
                     "The Computer Speaks",
                     "Robot Wisdom",
@@ -140,6 +141,7 @@ class MessModel:
                     "The Voice of Reason",
                     "The Digital Sage",
                     "The Computer's Counsel",
+                    "Ghost in the Shell",
                 ]),
                 "body": message,
                 "imageUrl": f"https://followcrom-online.s3.eu-west-2.amazonaws.com/notifications/images/medel_{selected_image}.jpg",
@@ -170,7 +172,8 @@ class MessModel:
                 "Content-Type": "application/json",
             })
             if response.status_code == 200:
-                logger.info(f"Notification sent successfully: {response.json()}")
+                # logger.info(f"Notification sent successfully: {response.json()}")
+                logger.info(f"Notification sent successfully")
             else:
                 logger.error(f"Failed to send notification: {response.text}")
         except Exception as e:

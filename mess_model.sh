@@ -2,7 +2,10 @@
 
 # Exit on error
 set -e
-trap 'log "Message NOT sent due to an error." ERR' ERR
+set -o pipefail
+
+# Trap errors and log them
+trap 'echo "$(date) - Message NOT sent due to an error." >> "$LOG_FILE"' ERR
 
 # Absolute paths
 VENV_PATH="/var/www/domdom/domdom_venv"
@@ -10,22 +13,25 @@ SCRIPT_PATH="/var/www/domdom/message_model.py"
 LOG_FILE="/var/www/domdom/medel_analysis.log"
 
 # Define array of available analyzers
-MODELS=("llama3" "claude" "gemini" "o1" "openai" "grok" "bedrock" "deepseek" "mistral")
+MODELS=("llama3" "claude" "gemini" "o1" "gpt4" "grok" "bedrock" "deepseek" "mistral")
 
 # Randomly select an analyzer
 SELECTED_MODEL=${MODELS[$RANDOM % ${#MODELS[@]}]}
 
-# Logging function
-log() {
-    echo "$(date): $1" >> "$LOG_FILE"
-    echo >> "$LOG_FILE"
-}
-
-# Log start time and selected analyzer
-log "Generating a message from $SELECTED_MODEL"
+# Logs
+echo "$(date)" >> "$LOG_FILE"
+echo "Generating a message from $SELECTED_MODEL model" >> "$LOG_FILE"
+echo "Running Python script..." >> "$LOG_FILE"
+echo "Python script output:" >> "$LOG_FILE"
 
 # Change to the appropriate directory
 cd /var/www/domdom
+
+# Check if the virtual environment exists
+if [ ! -d "$VENV_PATH" ]; then
+    echo "$(date) - Virtual environment not found at $VENV_PATH" >> "$LOG_FILE"
+    exit 1
+fi
 
 # Activate virtual environment
 source "$VENV_PATH/bin/activate"
@@ -37,10 +43,17 @@ python_exit_code=$?
 # Log the Python script's output
 echo "$python_script_output" >> "$LOG_FILE"
 
+# Deactivate virtual environment
+deactivate
+
 # Check if the Python script executed successfully
 if [ $python_exit_code -eq 0 ]; then
-    log "Check your notifications for a message from $SELECTED_MODEL"
+    echo "Cron job complete!" >> "$LOG_FILE"
+    echo "" >> "$LOG_FILE"
 else
-    log "Error occurred in Python script. See output above."
+    echo "" >> "$LOG_FILE"
+    echo "Python script failed with exit code $python_exit_code" >> "$LOG_FILE"
+    echo "Output: $python_script_output" >> "$LOG_FILE"
+    echo "" >> "$LOG_FILE"
     exit $python_exit_code
 fi
