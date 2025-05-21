@@ -55,5 +55,19 @@ else
     echo "Python script failed with exit code $python_exit_code" >> "$LOG_FILE"
     echo "Output: $python_script_output" >> "$LOG_FILE"
     echo "" >> "$LOG_FILE"
+
+    # Compose the email body with date and script output
+    email_body="$(date) - Error: Python script failed to run.
+Exit Code: $python_exit_code
+
+Output:
+$python_script_output"
+
+    # Send the email
+    echo "$email_body" | mail -s "Medel Error" followcrom@gmail.com
+
+    # Log that the email was sent
+    echo "$(date) - Notification email sent regarding Python script failure." >> "$LOG_FILE"
+
     exit $python_exit_code
 fi

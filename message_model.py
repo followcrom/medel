@@ -70,10 +70,10 @@ class MessModel:
     AVAILABLE_MODELS = {
         'gpt4': LLMConfig('GPT-4o', 'gpt-4o', 'OPENAI_API_KEY'),
         'claude': LLMConfig('Claude', 'claude-3.7-sonnet', 'ANTHROPIC_API_KEY'),
-        'gemini': LLMConfig('Gemini', 'gemini-2.0-pro-exp-02-05', 'GOOGLE_API_KEY'),
+        'gemini': LLMConfig('Gemini', 'gemini-2.5-pro-preview-03-25', 'GOOGLE_API_KEY'),
         'llama3': LLMConfig('Llama3', 'llama3', 'GROQ'),
         'o1': LLMConfig('o1', 'o1', 'OPENAI_API_KEY'),
-        'grok': LLMConfig('Grok', 'grok-beta', 'XAI_API_KEY'),
+        'grok': LLMConfig('Grok', 'grok-3-latest', 'XAI_API_KEY'),
         'bedrock': LLMConfig('Bedrock', 'nova-pro', 'AWS_API_KEY'),
         'deepseek': LLMConfig('Deepseek', 'deepseek-reasoner', 'DEEPSEEK_API_KEY'),
         'mistral': LLMConfig('Mistral', 'mistral-large', 'MISTRAL_API_KEY'),
@@ -104,7 +104,7 @@ class MessModel:
             return message
         except Exception as e:
             logger.error(f"Failed to generate message: {e}")
-            return None
+            sys.exit(1)
 
     def log_to_dynamodb(self, date: str, model: str, message: str) -> None:
         try:
@@ -119,6 +119,7 @@ class MessModel:
             logger.info(f"Logged to DynamoDB: date={date}, model={model}")
         except (BotoCoreError, ClientError) as e:
             logger.error(f"Failed to log to DynamoDB: {e}")
+            sys.exit(1)
 
     def create_notification_payload(self, message: str) -> Dict[str, Any]:
         title = "Message from a Model"
@@ -176,15 +177,17 @@ class MessModel:
                 logger.info(f"Notification sent successfully")
             else:
                 logger.error(f"Failed to send notification: {response.text}")
+                sys.exit(1)
         except Exception as e:
             logger.error(f"Error in send_push_notification: {e}")
+            sys.exit(1)
 
 if __name__ == "__main__":
     import argparse
 
     try:
         parser = argparse.ArgumentParser()
-        parser.add_argument('--model', type=str, default='o1') # Model you want to use
+        parser.add_argument('--model', type=str, default='grok') # Model you want to use
         args = parser.parse_args()
 
         model_name = args.model
