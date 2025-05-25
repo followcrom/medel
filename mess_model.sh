@@ -1,12 +1,5 @@
 #!/bin/bash
 
-# Exit on error
-set -e
-set -o pipefail
-
-# Trap errors and log them
-trap 'echo "$(date) - Message NOT sent due to an error." >> "$LOG_FILE"' ERR
-
 # Absolute paths
 VENV_PATH="/var/www/domdom/domdom_venv"
 SCRIPT_PATH="/var/www/domdom/message_model.py"

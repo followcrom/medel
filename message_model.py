@@ -31,7 +31,6 @@ DYNAMODB_TABLE = "MedelLogs"
 
 prompts = [
     "Hey, I'm Teed. Hit me with a bite-sized mindfulness reminder to keep me present today. Keep it tight and practical.",
-    "Hey, I'm Teed. Got a quick hack for shutting down catastrophic thoughts before they spiral? Keep your answer crisp and direct.",
     "Hey, I'm Teed. Give me a punchy memento mori reminder — life's short, I wanna make it count. Keep it tight and practical.",
     "Hi, I'm Teed. Are we all psychologically fragile? Keep your answer crisp and direct.",
     "Hi, I'm Teed. Life's messy, but beautiful. How do I instantly tap into gratitude when I forget? Keep it tight and practical.",
@@ -50,7 +49,7 @@ prompts = [
     "Hey, I'm Teed. Serve me a shot of instant self-compassion. Keep your answer crisp and direct.",
     "Hey, I'm Teed. How do I cultivate stillness in the middle of my storm? Keep it tight and practical.",
     "Hola, soy Teed. Dame un micro-mantra para interrumpir mi autojuicio.",
-    "Oye, soy Teed. ¿Cuál es el camino más rápido para volver a mi centro?",
+    "Hola, soy Teed. ¿Cómo puedo recordar que la vida es un viaje, no un destino?",
     "Hola, soy Teed. ¿Cómo recuerdo que este momento es suficiente?", 
     "Oye, soy Teed. Susurra un recordatorio de mi propia fuerza silenciosa.",
     "Hola, soy Teed. ¿Qué rayo de perspectiva puedo tener cuando todo parece estancado?"
