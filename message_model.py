@@ -30,24 +30,24 @@ expo_push_token = os.getenv('EXPO_PUSH_TOKENS')
 DYNAMODB_TABLE = "MedelLogs"
 
 prompts = [
-    "Hey, I'm Teed. Hit me with a bite-sized mindfulness reminder to keep me present today. Keep it tight and practical.",
+    "Hey, I'm Teed. Hit me with a bite-sized mindfulness reminder to keep me present today.",
     "Hey, I'm Teed. Give me a punchy memento mori reminder — life's short, I wanna make it count. Keep it tight and practical.",
     "Hi, I'm Teed. Are we all psychologically fragile? Keep your answer crisp and direct.",
-    "Hi, I'm Teed. Life's messy, but beautiful. How do I instantly tap into gratitude when I forget? Keep it tight and practical.",
-    "Isn't it wild that we exist at all? Keep your answer crisp and direct.",
-    "Hey, I'm Teed. Drop a micro-dose of perspective — something to keep me centered today. Keep your answer brief and direct.",
-    "Hi, I'm Teed. What's a super simple thought shift I can use to turn a tough day around? Keep it tight and practical.",
-    "Hey, I'm Teed. Remind me why even small joys are worth savoring. Keep your answer crisp and direct.",
-    "Life's a weird, wonderful ride - what's a quick mantra to enjoy the trip? Keep it tight and practical.",
-    "Hey, I'm Teed. How do I stop overthinking and just be here now? Keep your answer crisp and direct.",
+    "Hi, I'm Teed. Life's messy, but beautiful. How do I instantly tap into gratitude when I forget?",
+    "Isn't it wild that we exist at all?",
+    "Hey, I'm Teed. Drop a micro-dose of perspective — something to keep me centered today.",
+    "Hi, I'm Teed. My mind is prone to reminding me of my flaws. Can you give me a quick, practical way to shift that narrative?",
+    "Hey, I'm Teed. Remind me why even small joys are worth savoring.",
+    "Life's a weird, wonderful ride - what's a quick mantra to enjoy the trip?",
+    "Hey, I'm Teed. How do I stop overthinking and just be here now?",
     "Life is so rich, isn't it?",
-    "Hey, I'm Teed. Need a quick reality check to snap out of negative self-talk. Keep it tight and practical.",
-    "Hey, I'm Teed. Drop a zen-like whisper to help me detach from today's chaos. Keep your answer crisp and direct.",
-    "Hi, I'm Teed. What's a lightning-fast way to remember my own resilience? Keep it tight and practical.",
-    "Hey, I'm Teed. Give me a pocket-sized perspective shifter right now. Keep your answer crisp and direct.",
-    "Hi, I'm Teed. How do I interrupt my brain's default spiral of worry? Keep it tight and practical.",
-    "Hey, I'm Teed. Serve me a shot of instant self-compassion. Keep your answer crisp and direct.",
-    "Hey, I'm Teed. How do I cultivate stillness in the middle of my storm? Keep it tight and practical.",
+    "Hey, I'm Teed. Need a quick reality check to snap out of negative self-talk.",
+    "Hey, I'm Teed. Drop a zen-like whisper to help me detach from today's chaos.",
+    "Hi, I'm Teed. What's a lightning-fast way to remember my own resilience?",
+    "Hey, I'm Teed. Give me a pocket-sized perspective shifter right now.",
+    "Hi, I'm Teed. How do I interrupt my brain's default spiral of worry?",
+    "Hey, I'm Teed. Serve me a shot of instant self-compassion.",
+    "Hey, I'm Teed. How do I cultivate stillness in the middle of my storm?",
     "Hola, soy Teed. Dame un micro-mantra para interrumpir mi autojuicio.",
     "Hola, soy Teed. ¿Cómo puedo recordar que la vida es un viaje, no un destino?",
     "Hola, soy Teed. ¿Cómo recuerdo que este momento es suficiente?", 
@@ -67,11 +67,11 @@ class LLMConfig:
 
 class MessModel:
     AVAILABLE_MODELS = {
-        'gpt4': LLMConfig('GPT-4o', 'gpt-4o', 'OPENAI_API_KEY'),
-        'claude': LLMConfig('Claude', 'claude-3.7-sonnet', 'ANTHROPIC_API_KEY'),
+        'gpt': LLMConfig('GPT-4.5', 'gpt-4.5', 'OPENAI_API_KEY'),
+        'claude': LLMConfig('Claude', 'claude-3.7-sonnet-latest', 'ANTHROPIC_API_KEY'),
         'gemini': LLMConfig('Gemini', 'gemini-2.5-pro-preview-03-25', 'GOOGLE_API_KEY'),
-        'llama3': LLMConfig('Llama3', 'llama3', 'GROQ'),
-        'o1': LLMConfig('o1', 'o1', 'OPENAI_API_KEY'),
+        'llama': LLMConfig('Llama-4', 'llama-4', 'GROQ'),
+        'qwen': LLMConfig('Qwen', 'qwen', 'GROQ'),
         'grok': LLMConfig('Grok', 'grok-3-latest', 'XAI_API_KEY'),
         'bedrock': LLMConfig('Bedrock', 'nova-pro', 'AWS_API_KEY'),
         'deepseek': LLMConfig('Deepseek', 'deepseek-reasoner', 'DEEPSEEK_API_KEY'),
@@ -96,7 +96,8 @@ class MessModel:
         try:
             model = llm.get_model(self.model_config.model_id)
             model.key = self.model_config.api_key
-            prompt = random.choice(prompts)
+            master_prompt = "What follows is a request for practical mindfulness. Respond in a way that is brief, actionable, and easy to understand. Avoid fluff. Stay positive and supportive."
+            prompt = f"{master_prompt}\n{random.choice(prompts)}"
             response = model.prompt(prompt)
             message = str(response) if response else "No message generated."
             # logger.info(f"Message generated: {message}")
@@ -186,7 +187,7 @@ if __name__ == "__main__":
 
     try:
         parser = argparse.ArgumentParser()
-        parser.add_argument('--model', type=str, default='grok') # Model you want to use
+        parser.add_argument('--model', type=str, default='qwen') # Model you want to use
         args = parser.parse_args()
 
         model_name = args.model

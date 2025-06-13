@@ -6,7 +6,7 @@ SCRIPT_PATH="/var/www/domdom/message_model.py"
 LOG_FILE="/var/www/domdom/medel_analysis.log"
 
 # Define array of available analyzers
-MODELS=("llama3" "claude" "gemini" "o1" "gpt4" "grok" "bedrock" "deepseek" "mistral")
+MODELS=("llama" "claude" "gemini" "qwen" "gpt" "grok" "bedrock" "deepseek" "mistral")
 
 # Randomly select an analyzer
 SELECTED_MODEL=${MODELS[$RANDOM % ${#MODELS[@]}]}
@@ -18,7 +18,10 @@ echo "Running Python script..." >> "$LOG_FILE"
 echo "Python script output:" >> "$LOG_FILE"
 
 # Change to the appropriate directory
-cd /var/www/domdom
+cd /var/www/domdom || {
+    echo "$(date) - Failed to cd into /var/www/domdom" >> "$LOG_FILE"
+    exit 1
+}
 
 # Check if the virtual environment exists
 if [ ! -d "$VENV_PATH" ]; then
@@ -44,13 +47,16 @@ if [ $python_exit_code -eq 0 ]; then
     echo "Cron job complete!" >> "$LOG_FILE"
     echo "" >> "$LOG_FILE"
 else
-    echo "" >> "$LOG_FILE"
     echo "Python script failed with exit code $python_exit_code" >> "$LOG_FILE"
     echo "Output: $python_script_output" >> "$LOG_FILE"
+    echo "Email sent regarding Python script failure." >> "$LOG_FILE"
     echo "" >> "$LOG_FILE"
 
-    # Compose the email body with date and script output
-    email_body="$(date) - Error: Python script failed to run.
+    # Compose the email body with date and script output. If you indent some lines but not others, the actual content will contain those leading spaces exactly as you typed them, which causes uneven indentation in the email text.
+    email_body="$(date) - Medel Error Notification
+
+Today's Message from a Model failed to complete. The model selected was $SELECTED_MODEL.
+
 Exit Code: $python_exit_code
 
 Output:
@@ -58,9 +64,6 @@ $python_script_output"
 
     # Send the email
     echo "$email_body" | mail -s "Medel Error" followcrom@gmail.com
-
-    # Log that the email was sent
-    echo "$(date) - Notification email sent regarding Python script failure." >> "$LOG_FILE"
 
     exit $python_exit_code
 fi
