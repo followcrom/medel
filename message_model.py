@@ -67,7 +67,7 @@ class LLMConfig:
 
 class MessModel:
     AVAILABLE_MODELS = {
-        'gpt': LLMConfig('GPT-4.5', 'gpt-4.5', 'OPENAI_API_KEY'),
+        'gpt': LLMConfig('GPT-4.1', 'gpt-4.1', 'OPENAI_API_KEY'),
         'claude': LLMConfig('Claude', 'claude-3.7-sonnet-latest', 'ANTHROPIC_API_KEY'),
         'gemini': LLMConfig('Gemini', 'gemini-2.5-pro-preview-03-25', 'GOOGLE_API_KEY'),
         'llama': LLMConfig('Llama-4', 'llama-4', 'GROQ'),

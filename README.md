@@ -6,6 +6,8 @@
 
 `model_message.py` generates a message from an LLM and sends it as a push notification to the **RanDOM WisDOM** app. It then logs the message to DynamoDB.
 
+## 🕓 Get the Latest Models 🧠
+
 ### 🤖 llm
 
 👉 [swill's llm documentation](https://llm.datasette.io/en/stable/usage.html)
@@ -14,12 +16,32 @@ Listing installed plugins:
 
 ```bash
 llm plugins
+
+llm plugins --all
 ```
 
-Plugins can be uninstalled with llm uninstall (the -y flag skips asking for confirmation):
+Installing / updating a plugin:
 
 ```bash
-llm uninstall llm-gemini -y
+llm uninstall llm-gemini # for example
+
+llm uninstall llm-gemini -y # -y flag skips asking for confirmation
+
+llm install llm-gemini
+
+llm mistral refresh
+
+# OR:
+
+llm install llm-grok -U
+```
+
+List all available models:
+
+```bash
+llm models
+
+llm openai models
 ```
 
 Get the path to the keys directory:
@@ -28,10 +50,23 @@ Get the path to the keys directory:
 dirname "$(llm keys path)"
 ```
 
-Generates a message from one of the following:
+## ֎ OpenAI Models 🧿
+ 
+Specific model usage can be tied to API keys. Allowed models can be set on a project level. Go to `Project -> Limits` on the [OpenAI dashboard](https://platform.openai.com/settings/proj_WJ4UVWtOs47BaFcQUjpLuk82) and access the Model usage section.
+
+Alternatively, you can use the OpenAI API to list available models for a given API key:
 
 ```bash
-MODELS=("llama3" "claude" "gemini" "mixtral" "openai" "grok" "bedrock")
+curl https://api.openai.com/v1/models \
+  -H "Authorization: Bearer <API_KEY>"
+```
+
+## 🌥️ AWS Accounts ☁️
+
+To see which IAM user is currently logged in, run the following command:
+
+```bash
+aws sts get-caller-identity
 ```
 
 ### 📲 Expo
@@ -69,6 +104,51 @@ Explanation:
 - `0 0 * * *`: Runs the cron job daily at midnight.
 
 - `sleep $((RANDOM % 86400))`: Pauses the job for a random duration between 0 to 86400 seconds (24 hours).
+
+<br>
+
+I could add the sleep delay to the `mess_model.sh` script.
+
+```bash
+#!/bin/bash
+
+# Only sleep if running from cron (no terminal)
+if [ ! -t 0 ]; then
+    # Random delay (0-86400 seconds = 0-24 hours)
+    sleep $((RANDOM % 86400))
+fi
+```
+
+or
+
+```bash
+#!/bin/bash
+
+# Skip delay if --no-delay parameter is passed
+if [[ "$1" != "--no-delay" ]]; then
+    sleep $((RANDOM % 86400))
+fi
+```
+
+Then I could run the script with:
+
+```bash
+./mess_model.sh --no-delay
+```
+
+### Resource Usage
+
+#### Sleep in cron:
+
+- 2 processes running: bash -c wrapper + sleep command
+- Memory: ~2-4MB for both processes combined
+- CPU: Minimal, but 2 processes in process table
+
+#### Sleep in script:
+
+- 1 process running: Just the script itself calling sleep()
+- Memory: ~1-2MB for single process
+- CPU: Minimal, single process
 
 <br>
 
@@ -151,40 +231,6 @@ Check Journal logs for errors:
 
 ```bash
 journalctl -u medel.service -p err
-```
----
-
-<br>
-
-## 🕓 Get the Latest Models 🧠
-
-`llm plugins --all`
-
-`llm uninstall llm-gemini` (for example)
-
-`llm install llm-gemini`
-
-OR:
-
-`llm install llm-grok -U`
-
-## ֎ OpenAI Models 🧿
- 
-Specific model usage can be tied to API keys. Allowed models can be set on a project level. Go to `Project -> Limits` on the [OpenAI dashboard](https://platform.openai.com/settings/proj_WJ4UVWtOs47BaFcQUjpLuk82) and access the Model usage section.
-
-Alternatively, you can use the OpenAI API to list available models for a given API key:
-
-```bash
-curl https://api.openai.com/v1/models \
-  -H "Authorization: Bearer <API_KEY>"
-```
-
-## 🌥️ AWS Accounts ☁️
-
-To see which IAM user is currently logged in, run the following command:
-
-```bash
-aws sts get-caller-identity
 ```
 
 ---
