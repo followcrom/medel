@@ -8,3 +8,6 @@ model_message_openai.py
 
 # Ignore the imgs folder
 imgs/
+
+# Ignore the logs folder
+logs/
