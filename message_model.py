@@ -1,3 +1,4 @@
+from zoneinfo import ZoneInfo
 import llm
 from dotenv import load_dotenv
 import os
@@ -8,6 +9,7 @@ import logging
 from dataclasses import dataclass
 from typing import Optional, Dict, Any
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError, PartialCredentialsError
 
@@ -27,7 +29,7 @@ load_dotenv()
 expo_push_token = os.getenv('EXPO_PUSH_TOKENS')
 
 # DynamoDB Table Name
-DYNAMODB_TABLE = "MedelLogs"
+DYNAMODB_TABLE = "MedelLogs2"
 
 prompts = [
     "Hey, I'm Teed. Hit me with a bite-sized mindfulness reminder to keep me present today.",
@@ -106,17 +108,31 @@ class MessModel:
             logger.error(f"Failed to generate message: {e}")
             sys.exit(1)
 
-    def log_to_dynamodb(self, date: str, model: str, message: str) -> None:
+    def get_next_id(self) -> int:
+        counter_key = {'id': {'N': '0'}}
+        
+        response = self.dynamodb_client.update_item(
+            TableName=DYNAMODB_TABLE,
+            Key=counter_key,
+            # Increment the 'current_id' attribute on this item
+            UpdateExpression="ADD current_id :inc",
+            ExpressionAttributeValues={':inc': {'N': '1'}},
+            ReturnValues="UPDATED_NEW"
+        )
+        return int(response['Attributes']['current_id']['N'])
+
+    def log_to_dynamodb(self, date: str, model: str, message: str, id: int) -> None:
         try:
             self.dynamodb_client.put_item(
                 TableName=DYNAMODB_TABLE,
                 Item={
+                    'id': {'N': str(id)},
                     'date': {'S': date},
                     'model': {'S': model},
                     'message': {'S': message}
                 }
             )
-            logger.info(f"Logged to DynamoDB: date={date}, model={model}")
+            logger.info(f"Logged to DynamoDB: id={id}, date={date}, model={model}")
         except (BotoCoreError, ClientError) as e:
             logger.error(f"Failed to log to DynamoDB: {e}")
             sys.exit(1)
@@ -158,13 +174,19 @@ class MessModel:
             if not message:
                 logger.error("No message generated.")
                 return
+            
+            # Log to DynamoDB with UK time
+            date = datetime.now(ZoneInfo("Europe/London")).strftime('%Y-%m-%dT%H:%M:%S')
+            next_id = self.get_next_id()  # Get the next incremented id
+            self.log_to_dynamodb(date, self.model_config.name, message, next_id)
 
-            # Log to DynamoDB
+            # Log to DynamoDB with UTC time
             # date = datetime.now(timezone.utc).isoformat()
             # Result: '2025-01-25T13:06:09.634696+00:00'
-            date = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
+            # or you can use a custom format:
+            # date = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
             # Result: '2025-01-25T13:06:09'
-            self.log_to_dynamodb(date, self.model_config.name, message)
+            # self.log_to_dynamodb(date, self.model_config.name, message)
 
             # Send push notification
             payload = self.create_notification_payload(message)

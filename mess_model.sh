@@ -1,10 +1,7 @@
 #!/bin/bash
 
-# Only sleep if running from cron (no terminal)
-if [ ! -t 0 ]; then
-    # Random delay (0-86400 seconds = 0-24 hours)
-    sleep $((RANDOM % 86400))
-fi
+# I'm using a Systemd Timer to run this script at a random time each day
+# See Option 1 in the README to run this script from cron
 
 # Absolute paths
 VENV_PATH="/var/www/domdom/domdom_venv"
@@ -32,7 +29,7 @@ fi
 # Log start
 {
     echo "$(date)"
-    echo "Generating a message from $SELECTED_MODEL model"
+    echo "Generating a message from $SELECTED_MODEL."
     echo "Running Python script..."
     echo "Python script output:"
 } >> "$LOG_FILE"
@@ -46,7 +43,7 @@ echo "$python_script_output" >> "$LOG_FILE"
 
 # Handle success/failure
 if [ $python_exit_code -eq 0 ]; then
-    echo "Cron job complete!" >> "$LOG_FILE"
+    echo "Job complete!" >> "$LOG_FILE"
     echo "" >> "$LOG_FILE"
 else
     {
