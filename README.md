@@ -76,6 +76,12 @@ Get the path to the keys directory:
 dirname "$(llm keys path)"
 ```
 
+## Environment Variables 🌿
+
+The `.env` on **dobox** is a combination of the `.env` files in _medel_ and _domdom_notifications_. If you make a change to either, you'll need to update the one on **dobox**. It's a bit messy, but it works for now. 😅
+
+---
+
 ## ֎ OpenAI Models 🧿
  
 Specific model usage can be tied to API keys. Allowed models can be set on a project level. Go to `Project -> Limits` on the [OpenAI dashboard](https://platform.openai.com/settings/proj_WJ4UVWtOs47BaFcQUjpLuk82) and access the Model usage section.
