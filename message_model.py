@@ -32,24 +32,15 @@ expo_push_token = os.getenv('EXPO_PUSH_TOKENS')
 DYNAMODB_TABLE = "MedelLogs2"
 
 prompts = [
-    "Hey, I'm Teed. Hit me with a bite-sized mindfulness reminder to keep me present today.",
-    "Hey, I'm Teed. Give me a punchy memento mori reminder — life's short, I wanna make it count. Keep it tight and practical.",
-    "Hi, I'm Teed. Are we all psychologically fragile? Keep your answer crisp and direct.",
-    "Hi, I'm Teed. Life's messy, but beautiful. How do I instantly tap into gratitude when I forget?",
-    "Isn't it wild that we exist at all?",
-    "Hey, I'm Teed. Drop a micro-dose of perspective — something to keep me centered today.",
-    "Hi, I'm Teed. My mind is prone to reminding me of my flaws. Can you give me a quick, practical way to shift that narrative?",
-    "Hey, I'm Teed. Remind me why even small joys are worth savoring.",
-    "Life's a weird, wonderful ride - what's a quick mantra to enjoy the trip?",
-    "Hey, I'm Teed. How do I stop overthinking and just be here now?",
-    "Life is so rich, isn't it?",
-    "Hey, I'm Teed. Need a quick reality check to snap out of negative self-talk.",
-    "Hey, I'm Teed. Drop a zen-like whisper to help me detach from today's chaos.",
-    "Hi, I'm Teed. What's a lightning-fast way to remember my own resilience?",
-    "Hey, I'm Teed. Give me a pocket-sized perspective shifter right now.",
-    "Hi, I'm Teed. How do I interrupt my brain's default spiral of worry?",
-    "Hey, I'm Teed. Serve me a shot of instant self-compassion.",
-    "Hey, I'm Teed. How do I cultivate stillness in the middle of my storm?",
+    "Hola, soy Teed. Dame un pequeño recordatorio de atención plena para que me mantenga presente hoy.",
+    "Hola, soy Teed. ¿Somos todos psicológicamente frágiles? Responde conciso y directo.",
+    "Hola, soy Teed. La vida es desordenada, pero hermosa. ¿Cómo puedo acceder instantáneamente a la gratitud cuando lo olvido?",
+    "¿No es una locura que existamos?",
+    "Hola, soy Teed. Dame un pequeño recordatorio de atención plena para que me mantenga presente hoy.",
+    "Hola, soy Teed. Mi mente tiende a recordarme mis defectos. ¿Puedes darme una forma rápida y práctica de cambiar esa narrativa?",
+    "Hola, soy Teed. Recuérdame por qué vale la pena disfrutar incluso de las pequeñas alegrías.",
+    "La vida es un viaje extraño y maravilloso. ¿Cuál es un mantra rápido para disfrutar del viaje?",
+    "La vida es tan rica, ¿no es así?",
     "Hola, soy Teed. Dame un micro-mantra para interrumpir mi autojuicio.",
     "Hola, soy Teed. ¿Cómo puedo recordar que la vida es un viaje, no un destino?",
     "Hola, soy Teed. ¿Cómo recuerdo que este momento es suficiente?", 
@@ -69,18 +60,18 @@ class LLMConfig:
 
 class MessModel:
     AVAILABLE_MODELS = {
-        'gpt': LLMConfig('GPT-4.1', 'gpt-4.1', 'OPENAI_API_KEY'),
+        'gpt': LLMConfig('GPT-5-Nano', 'gpt-5', 'OPENAI_API_KEY'),
         'claude': LLMConfig('Claude', 'claude-3.7-sonnet-latest', 'ANTHROPIC_API_KEY'),
-        'gemini': LLMConfig('Gemini', 'gemini-2.5-pro-preview-03-25', 'GOOGLE_API_KEY'),
+        'gemini': LLMConfig('Gemini', 'gemini-2.5-flash-lite-preview-09-2025', 'GOOGLE_API_KEY'),
         'llama': LLMConfig('Llama-4', 'llama-4', 'GROQ'),
         'qwen': LLMConfig('Qwen', 'qwen', 'GROQ'),
-        'grok': LLMConfig('Grok', 'grok-3-latest', 'XAI_API_KEY'),
+        'grok': LLMConfig('Grok', 'grok-4-fast', 'XAI_API_KEY'),
         'bedrock': LLMConfig('Bedrock', 'nova-pro', 'AWS_API_KEY'),
         'deepseek': LLMConfig('Deepseek', 'deepseek-reasoner', 'DEEPSEEK_API_KEY'),
         'mistral': LLMConfig('Mistral', 'mistral-large', 'MISTRAL_API_KEY'),
     }
 
-    def __init__(self, model_name: str = 'mistral'):
+    def __init__(self, model_name: str = 'gpt'):
         if model_name not in self.AVAILABLE_MODELS:
             raise ValueError(f"Invalid model name. Available models: {', '.join(self.AVAILABLE_MODELS.keys())}")
         
@@ -209,7 +200,7 @@ if __name__ == "__main__":
 
     try:
         parser = argparse.ArgumentParser()
-        parser.add_argument('--model', type=str, default='qwen') # Model you want to use
+        parser.add_argument('--model', type=str, default='gpt') # Model you want to use
         args = parser.parse_args()
 
         model_name = args.model

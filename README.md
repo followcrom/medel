@@ -20,7 +20,15 @@ llm plugins
 llm plugins --all
 ```
 
-Installing / updating a plugin:
+Updating installed plugins:
+
+```bash
+llm install -U llm-gemini
+
+llm install -U llm-openai-plugin
+```
+
+Installing a plugin:
 
 ```bash
 llm uninstall llm-gemini # for example
@@ -42,6 +50,24 @@ List all available models:
 llm models
 
 llm openai models
+```
+
+Set a default model:
+
+```bash
+llm models default
+
+llm models default gpt-4o
+```
+
+Set model alias:
+
+```bash
+llm alias
+llm aliases list --json
+
+# llm aliases set <alias> <model-id>
+llm aliases set mini gpt-4o-mini
 ```
 
 Get the path to the keys directory:
