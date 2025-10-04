@@ -76,14 +76,15 @@ Get the path to the keys directory:
 dirname "$(llm keys path)"
 ```
 
-## Environment Variables 🌿
+## 🌿 Environment Variables 🌿
 
 The `.env` on **dobox** is a combination of the `.env` files in _medel_ and _domdom_notifications_. If you make a change to either, you'll need to update the one on **dobox**. It's a bit messy, but it works for now. 😅
 
 
-## Failed Push Notification Attempts ❌
+##  🏌️ Failed Push Notification Attempts ❌
 
 If a notification fails, `mess_model.sh` will log the error details and send an email alert to the admin.
+
 ---
 
 ## ֎ OpenAI Models 🧿
@@ -109,7 +110,7 @@ aws sts get-caller-identity
 
 The message is then sent as a push notification to the **RanDOM WisDOM** app.
 
-### 📝 DynamoDB
+### 📝 DynamoDB 📦
 
 The _date, model_ and _message_ are logged to the `MedelLogs` DynamoDB table.
 
@@ -172,15 +173,15 @@ Then I could run the script with:
 ./mess_model.sh --no-delay
 ```
 
-### Resource Usage
+### 🗃️ Resource Usage 🧰
 
-#### Sleep in cron:
+#### Sleep in cron ⏰:
 
 - 2 processes running: bash -c wrapper + sleep command
 - Memory: ~2-4MB for both processes combined
 - CPU: Minimal, but 2 processes in process table
 
-#### Sleep in script:
+#### Sleep in script 📝:
 
 - 1 process running: Just the script itself calling sleep()
 - Memory: ~1-2MB for single process
