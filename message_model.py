@@ -171,26 +171,38 @@ class MessModel:
             next_id = self.get_next_id()  # Get the next incremented id
             self.log_to_dynamodb(date, self.model_config.name, message, next_id)
 
-            # Log to DynamoDB with UTC time
-            # date = datetime.now(timezone.utc).isoformat()
-            # Result: '2025-01-25T13:06:09.634696+00:00'
-            # or you can use a custom format:
-            # date = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
-            # Result: '2025-01-25T13:06:09'
-            # self.log_to_dynamodb(date, self.model_config.name, message)
-
             # Send push notification
             payload = self.create_notification_payload(message)
             response = requests.post(EXPO_PUSH_ENDPOINT, json=payload, headers={
                 "Accept": "application/json",
                 "Content-Type": "application/json",
             })
-            if response.status_code == 200:
-                # logger.info(f"Notification sent successfully: {response.json()}")
-                logger.info(f"Notification sent successfully")
-            else:
-                logger.error(f"Failed to send notification: {response.text}")
+
+            # Parse and validate Expo response — HTTP 200 can still contain per-recipient errors
+            try:
+                resp_json = response.json()
+            except ValueError:
+                logger.error("Invalid JSON response from Expo: %s", response.text)
                 sys.exit(1)
+
+            if response.status_code != 200:
+                logger.error("Expo HTTP error %d: %s", response.status_code, response.text)
+                sys.exit(1)
+
+            # Expo v2 returns a "data" dict
+            problems = []
+            data = resp_json.get("data") or resp_json.get("errors") or []
+
+            if isinstance(data, dict):
+                status = (data.get("status") or "").lower()
+                if status != "ok":
+                    problems.append(data)
+
+            if problems:
+                logger.error("Expo reported errors: %s", problems)
+                sys.exit(1)
+
+            logger.info("Notification sent successfully: %s", resp_json)
         except Exception as e:
             logger.error(f"Error in send_push_notification: {e}")
             sys.exit(1)

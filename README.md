@@ -80,6 +80,10 @@ dirname "$(llm keys path)"
 
 The `.env` on **dobox** is a combination of the `.env` files in _medel_ and _domdom_notifications_. If you make a change to either, you'll need to update the one on **dobox**. It's a bit messy, but it works for now. 😅
 
+
+## Failed Push Notification Attempts ❌
+
+If a notification fails, `mess_model.sh` will log the error details and send an email alert to the admin.
 ---
 
 ## ֎ OpenAI Models 🧿
