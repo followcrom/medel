@@ -274,15 +274,13 @@ journalctl -u medel.service -p err
 
 <br>
 
-## Logging to DynamoDB 📊
+## 🪵 Logging to DynamoDB 📊
 
 The application logs messages to a DynamoDB table named `MedelLogs2`. Each log entry includes a unique ID, the date, the model used, and the generated message.
 
-#### Counter Item
+#### Counter Item ⚠️
 
-There is also a Counter Item. This is a Live Record. ⚠️
-
-Think of the counter item {"id": {"N": "0"}, "current_id": {"N": "1000"}} as the live scoreboard for your messages.
+The Counter Item is a Live Record. Think of the counter item as the live scoreboard for your messages.
 
 Your `get_next_id` function actively interacts with this specific item every single time it's called:
 
