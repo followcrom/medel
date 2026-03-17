@@ -254,7 +254,22 @@ Output:
 | Tue 2025-01-28 16:47:51 GMT | 19h left      | Mon 2025-01-27 08:30:07 GMT | 12h ago        | medel.timer   | medel.service |
 ```
 
-#### 5, Debugging Steps
+##### 5, Pause the Timer
+
+```bash
+systemctl stop medel.service
+systemctl disable medel.timer
+```
+
+When you want to bring it back:
+
+```bash
+systemctl enable medel.timer
+systemctl start medel.timer
+```
+
+
+##### 6, Debugging Steps
 
 Check Journal logs:
 
