@@ -258,7 +258,20 @@ Output:
 
 ```bash
 systemctl stop medel.service
+```
+
+`disable` only prevents the timer from starting at boot; it doesn't stop a timer that's already running. You need to stop it too:
+
+```bash
+systemctl stop medel.timer
 systemctl disable medel.timer
+```
+
+After that, verify it's truly inactive:
+
+```bash
+systemctl status medel.timer
+# You should see Active: inactive (dead) rather than active (waiting).
 ```
 
 When you want to bring it back:
