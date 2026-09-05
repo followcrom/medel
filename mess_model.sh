@@ -3,10 +3,22 @@
 # I'm using a Systemd Timer to run this script at a random time each day
 # See Option 1 in the README to run this script from cron
 
-# Absolute paths
-VENV_PATH="/var/www/domdom/domdom_venv"
-SCRIPT_PATH="/var/www/domdom/message_model.py"
-LOG_FILE="/var/www/domdom/medel_analysis.log"
+# Resolve the directory this script lives in, so it works unchanged on dobox
+# (/var/www/domdom) and locally (wherever the medel repo is checked out).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+SCRIPT_PATH="$SCRIPT_DIR/message_model.py"
+
+# dobox keeps its venv alongside the script; locally it lives in the sibling
+# swill project instead.
+if [ -d "$SCRIPT_DIR/domdom_venv" ]; then
+    VENV_PATH="$SCRIPT_DIR/domdom_venv"
+    LOG_FILE="$SCRIPT_DIR/medel_analysis.log"
+else
+    VENV_PATH="$HOME/projects/swill/swill_venv"
+    LOG_FILE="$SCRIPT_DIR/logs/medel_analysis.log"
+    mkdir -p "$SCRIPT_DIR/logs"
+fi
 
 # Define array of available analyzers
 MODELS=("llama" "claude" "gemini" "qwen" "gpt" "grok" "bedrock" "deepseek" "mistral")
@@ -15,8 +27,8 @@ MODELS=("llama" "claude" "gemini" "qwen" "gpt" "grok" "bedrock" "deepseek" "mist
 SELECTED_MODEL=${MODELS[$RANDOM % ${#MODELS[@]}]}
 
 # Change to the appropriate directory
-cd /var/www/domdom || {
-    echo "$(date) - Failed to cd into /var/www/domdom" >> "$LOG_FILE"
+cd "$SCRIPT_DIR" || {
+    echo "$(date) - Failed to cd into $SCRIPT_DIR" >> "$LOG_FILE"
     exit 1
 }
 
@@ -49,12 +61,12 @@ else
     {
         echo "Python script failed with exit code $python_exit_code"
         echo "Output: $python_script_output"
-        echo "Email sent regarding Python script failure."
-        echo ""
     } >> "$LOG_FILE"
 
-    # Send failure email
-    cat << EOF | mail -s "Medel Error" noreply@followcrom.com
+    # Send failure email, if this environment has a mail command (dobox does; local dev usually doesn't)
+    if command -v mail >/dev/null 2>&1; then
+        echo "Email sent regarding Python script failure." >> "$LOG_FILE"
+        cat << EOF | mail -s "Medel Error" noreply@followcrom.com
 $(date) - Medel Error Notification
 
 Today's Message from a Model failed to complete. The model selected was $SELECTED_MODEL.
@@ -64,6 +76,9 @@ Exit Code: $python_exit_code
 Output:
 $python_script_output
 EOF
+    else
+        echo "No mail command available - skipping failure email." >> "$LOG_FILE"
+    fi
 
     exit $python_exit_code
 fi

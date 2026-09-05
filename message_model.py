@@ -60,11 +60,11 @@ class LLMConfig:
 
 class MessModel:
     AVAILABLE_MODELS = {
-        'gpt': LLMConfig('GPT', 'gpt-5.2-chat-latest', 'OPENAI_API_KEY'),
+        'gpt': LLMConfig('GPT', 'openai/gpt-5', 'OPENAI_API_KEY'),
         'claude': LLMConfig('Claude', 'claude-sonnet-5', 'ANTHROPIC_API_KEY'),
         'gemini': LLMConfig('Gemini', 'gemini-3.5-flash-lite', 'GOOGLE_API_KEY'),
-        'llama': LLMConfig('Llama-3.3', 'groq/llama-3.3-70b-versatile', 'GROQ'),
-        'qwen': LLMConfig('Qwen', 'groq/qwen/qwen3-32b', 'GROQ'),
+        'llama': LLMConfig('GPT-OSS-120B', 'groq/openai/gpt-oss-120b', 'GROQ'),
+        'qwen': LLMConfig('Qwen', 'groq/qwen/qwen3.8-27b', 'GROQ'),
         'grok': LLMConfig('Grok', 'grok-4-latest', 'XAI_API_KEY'),
         'bedrock': LLMConfig('Bedrock', 'nova-pro', 'AWS_API_KEY'),
         'deepseek': LLMConfig('Deepseek', 'deepseek-chat', 'DEEPSEEK_API_KEY'),
