@@ -4,7 +4,7 @@
 
 ---
 
-`model_message.py` generates a message from an LLM and sends it as a push notification to the **RanDOM WisDOM** app. It then logs the message to DynamoDB.
+`message_model.py` generates a message from an LLM and sends it as a push notification to the **RanDOM WisDOM** app. It then logs the message to DynamoDB. `mess_model.sh` picks a random model and runs it - locally or on **dobox**, it resolves its own paths automatically.
 
 ## 🕓 Get the Latest Models 🧠
 
@@ -28,6 +28,8 @@ llm install -U llm-gemini
 llm install -U llm-openai-plugin
 ```
 
+If `pip` starts backtracking through old versions (slow, high CPU), pin the exact version instead of a bare `-U`, e.g. `llm install -U "llm-anthropic==0.28"`.
+
 Installing a plugin:
 
 ```bash
@@ -36,13 +38,20 @@ llm uninstall llm-gemini # for example
 llm uninstall llm-gemini -y # -y flag skips asking for confirmation
 
 llm install llm-gemini
-
-llm mistral refresh
-
-# OR:
-
-llm install llm-grok -U
 ```
+
+### ⚠️ Model registries go stale
+
+A plugin's model list is a snapshot from whenever it was built - it can drift from what the provider's live API actually serves (models get renamed, deprecated, or added). If a model that should work throws `Unknown model: ...`, or a request 404s even though `llm models` lists it, refresh the plugin's registry against the live API:
+
+```bash
+llm groq refresh
+llm mistral refresh
+```
+
+Not every plugin supports a live refresh - check `llm <plugin-command> --help`.
+
+Some plugins (e.g. `llm-deepseek`) only register a model if a key is already stored via `llm keys set <provider>` - setting `model.key` at runtime in the app's own code isn't enough for the model to show up at all. And on the box, `medel.service` runs as **root**, which has its own `llm` config under `/root/.config/io.datasette.llm/` - separate from any other user's, including `claudeops`. Any `llm keys set` or `llm ... refresh` needs to be run as root to actually take effect in production.
 
 List all available models:
 
@@ -83,7 +92,7 @@ The `.env` on **dobox** is a combination of the `.env` files in _medel_ and _dom
 
 ##  🏌️ Failed Push Notification Attempts ❌
 
-If a notification fails, `mess_model.sh` will log the error details and send an email alert to the admin.
+If a notification fails, `mess_model.sh` logs the error details and, on dobox, emails an alert to the admin (skipped locally if no `mail` command is available).
 
 ---
 
@@ -112,9 +121,9 @@ The message is then sent as a push notification to the **RanDOM WisDOM** app.
 
 ### 📝 DynamoDB 📦
 
-The _date, model_ and _message_ are logged to the `MedelLogs` DynamoDB table.
+The _date, model_ and _message_ are logged to the `MedelLogs2` DynamoDB table.
 
-👉 [MedelLogs](https://eu-west-2.console.aws.amazon.com/dynamodbv2/home?region=eu-west-2#table?name=MedelLogs)
+👉 [MedelLogs2](https://eu-west-2.console.aws.amazon.com/dynamodbv2/home?region=eu-west-2#table?name=MedelLogs2)
 
 ---
 
@@ -122,76 +131,14 @@ The _date, model_ and _message_ are logged to the `MedelLogs` DynamoDB table.
 
 `mess_model.sh` does the following:
 
-- activates the virtual environment
-- selects a model
-- runs `mess_model.py` with the selected model
+- resolves the right venv for the environment it's running in
+- selects a model at random
+- runs `message_model.py` with the selected model
 - logs the message to DynamoDB
 
-### 1️⃣ Option 1: Cron Job 🕓
+### ⏱️ Systemd Timer
 
-I could use a Cron Job with a random delay.
-
-```bash
-# Mess Model
-0 0 * * * sleep $((RANDOM % 86400)) && /bin/bash /var/www/domdom/mess_model.sh
-```
-
-Explanation:
-
-- `0 0 * * *`: Runs the cron job daily at midnight.
-
-- `sleep $((RANDOM % 86400))`: Pauses the job for a random duration between 0 to 86400 seconds (24 hours).
-
-<br>
-
-I could add the sleep delay to the `mess_model.sh` script.
-
-```bash
-#!/bin/bash
-
-# Only sleep if running from cron (no terminal)
-if [ ! -t 0 ]; then
-    # Random delay (0-86400 seconds = 0-24 hours)
-    sleep $((RANDOM % 86400))
-fi
-```
-
-or
-
-```bash
-#!/bin/bash
-
-# Skip delay if --no-delay parameter is passed
-if [[ "$1" != "--no-delay" ]]; then
-    sleep $((RANDOM % 86400))
-fi
-```
-
-Then I could run the script with:
-
-```bash
-./mess_model.sh --no-delay
-```
-
-### 🗃️ Resource Usage 🧰
-
-#### Sleep in cron ⏰:
-
-- 2 processes running: bash -c wrapper + sleep command
-- Memory: ~2-4MB for both processes combined
-- CPU: Minimal, but 2 processes in process table
-
-#### Sleep in script 📝:
-
-- 1 process running: Just the script itself calling sleep()
-- Memory: ~1-2MB for single process
-- CPU: Minimal, single process
-
-<br>
-
-### 2️⃣ Option 2: Systemd Timer ⏱️
-
-However, instead I'll use a Systemd Timer. Systemd timers are modern and more robust. A timer unit can randomize execution time within a given window.
+A timer unit randomizes execution time within a given window - no cron/sleep hackery needed.
 
 #### 1, Create a Service File
 
@@ -254,7 +201,7 @@ Output:
 | Tue 2025-01-28 16:47:51 GMT | 19h left      | Mon 2025-01-27 08:30:07 GMT | 12h ago        | medel.timer   | medel.service |
 ```
 
-##### 5, Pause the Timer
+#### 5, Pause the Timer
 
 ```bash
 systemctl stop medel.service
@@ -282,7 +229,7 @@ systemctl start medel.timer
 ```
 
 
-##### 6, Debugging Steps
+#### 6, Debugging Steps
 
 Check Journal logs:
 
@@ -323,31 +270,7 @@ Your `get_next_id` function actively interacts with this specific item every sin
 
 ## 🤔 Issues 🛠️
 
-1, An issue with the models on the **dobox** not being found until you set the API key, using `llm keys set`. 🤔
-
-- On installing DeepSeek models on the **dobox** (in the domdom_venv) they were not found until I added the API key. This is not the case locally.
-
-_However_, most of the keys (apart from grok) are set in the local `keys.json` file, so honestly not sure here.
-
-2, `model_message.py` was generating an _API key not found_ error when calling the groq models on the **dobox** BUT NOT locally. I had to `llm keys set groq` in the **dobox** (in the domdom_venv) to get the groq models to work. (The groq key is set locally, but that was not the issue as I'm calling the API keys from the `.env` file.)
-
-I knew that `notifications_team.py` was successfully calling the groq models from the **dobox**, and the code was almost identical. So I compared the two files and found the issue. 😎👌🔥
-
-This line was different in the def that calls the llm...
-
-In `model_message.py`:
-
-```python
-model.api_key = self.model_config.api_key
-```
-
-In `notifications_team.py`: 
-
-```python
-model.key = self.model_config.api_key
-```
-
-_However_, why did it initally work locally and not on the **dobox**, even with the different code? 🤔 Am assuming it's to do with the keys being hardcoded locally, but not on the **dobox**. 😅
+`message_model.py` sets the API key at runtime via `model.key = self.model_config.api_key` (sourced from `.env`). Some plugins (e.g. `llm-deepseek`) still need a key registered via `llm keys set <provider>` before they'll even list a model - see **⚠️ Model registries go stale** above for that, plus the root-vs-other-user config gotcha on **dobox**.
 
 ```bash
 llm keys path
