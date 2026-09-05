@@ -61,14 +61,14 @@ class LLMConfig:
 class MessModel:
     AVAILABLE_MODELS = {
         'gpt': LLMConfig('GPT-5-Nano', 'gpt-5', 'OPENAI_API_KEY'),
-        'claude': LLMConfig('Claude', 'claude-3.7-sonnet-latest', 'ANTHROPIC_API_KEY'),
+        'claude': LLMConfig('Claude', 'claude-sonnet-5', 'ANTHROPIC_API_KEY'),
         'gemini': LLMConfig('Gemini', 'gemini-2.5-flash-lite-preview-09-2025', 'GOOGLE_API_KEY'),
         'llama': LLMConfig('Llama-4', 'llama-4', 'GROQ'),
-        'qwen': LLMConfig('Qwen', 'qwen', 'GROQ'),
-        'grok': LLMConfig('Grok', 'grok-4-fast', 'XAI_API_KEY'),
+        'qwen': LLMConfig('Qwen', 'qwen/qwen3.8-27b', 'GROQ'),
+        'grok': LLMConfig('Grok', 'grok-4.6', 'XAI_API_KEY'),
         'bedrock': LLMConfig('Bedrock', 'nova-pro', 'AWS_API_KEY'),
-        'deepseek': LLMConfig('Deepseek', 'deepseek-reasoner', 'DEEPSEEK_API_KEY'),
-        'mistral': LLMConfig('Mistral', 'mistral-large', 'MISTRAL_API_KEY'),
+        'deepseek': LLMConfig('Deepseek', 'deepseek-v4-pro', 'DEEPSEEK_API_KEY'),
+        'mistral': LLMConfig('Mistral', 'mistral-medium-latest', 'MISTRAL_API_KEY'),
     }
 
     def __init__(self, model_name: str = 'gpt'):
