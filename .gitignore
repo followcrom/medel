@@ -11,3 +11,9 @@ imgs/
 
 # Ignore the logs folder
 logs/
+
+# Ignore __pycache__ folders
+__pycache__/
+
+# Ignore .claude folder
+.claude/

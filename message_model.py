@@ -60,15 +60,15 @@ class LLMConfig:
 
 class MessModel:
     AVAILABLE_MODELS = {
-        'gpt': LLMConfig('GPT-5-Nano', 'gpt-5', 'OPENAI_API_KEY'),
+        'gpt': LLMConfig('GPT', 'gpt-5.2-chat-latest', 'OPENAI_API_KEY'),
         'claude': LLMConfig('Claude', 'claude-sonnet-5', 'ANTHROPIC_API_KEY'),
-        'gemini': LLMConfig('Gemini', 'gemini-2.5-flash-lite-preview-09-2025', 'GOOGLE_API_KEY'),
-        'llama': LLMConfig('Llama-4', 'llama-4', 'GROQ'),
-        'qwen': LLMConfig('Qwen', 'qwen/qwen3.8-27b', 'GROQ'),
-        'grok': LLMConfig('Grok', 'grok-4.6', 'XAI_API_KEY'),
+        'gemini': LLMConfig('Gemini', 'gemini-3.5-flash-lite', 'GOOGLE_API_KEY'),
+        'llama': LLMConfig('Llama-3.3', 'groq/llama-3.3-70b-versatile', 'GROQ'),
+        'qwen': LLMConfig('Qwen', 'groq/qwen/qwen3-32b', 'GROQ'),
+        'grok': LLMConfig('Grok', 'grok-4-latest', 'XAI_API_KEY'),
         'bedrock': LLMConfig('Bedrock', 'nova-pro', 'AWS_API_KEY'),
-        'deepseek': LLMConfig('Deepseek', 'deepseek-v4-pro', 'DEEPSEEK_API_KEY'),
-        'mistral': LLMConfig('Mistral', 'mistral-medium-latest', 'MISTRAL_API_KEY'),
+        'deepseek': LLMConfig('Deepseek', 'deepseek-chat', 'DEEPSEEK_API_KEY'),
+        'mistral': LLMConfig('Mistral', 'mistral/mistral-medium-latest', 'MISTRAL_API_KEY'),
     }
 
     def __init__(self, model_name: str = 'gpt'):
@@ -89,7 +89,7 @@ class MessModel:
         try:
             model = llm.get_model(self.model_config.model_id)
             model.key = self.model_config.api_key
-            master_prompt = "What follows is a request for practical mindfulness. Respond in a way that is brief, actionable, and easy to understand. Avoid fluff. Stay positive and supportive."
+            master_prompt = "Lo que sigue es una solicitud de atención plena práctica. Responde de forma breve, práctica y fácil de entender. Evita lo superfluo. Mantén un tono positivo y comprensivo."
             prompt = f"{master_prompt}\n{random.choice(prompts)}"
             response = model.prompt(prompt)
             message = str(response) if response else "No message generated."
