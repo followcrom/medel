@@ -161,8 +161,10 @@ Save this as `/etc/systemd/system/medel.timer`
 Description=Generate a Random Time to Run Medel
 
 [Timer]
-OnCalendar=*-*-* 00:00:00
-RandomizedDelaySec=86400
+OnCalendar=*-*-* 15:00:00
+# OnCalendar=*-*-* 00:00:00
+RandomizedDelaySec=25200
+# RandomizedDelaySec=86400
 Persistent=true
 
 [Install]
@@ -171,11 +173,13 @@ WantedBy=timers.target
 
 Explanation:
 
+- `OnCalendar=*-*-* 15:00:00`: Schedules the job to run daily starting from 3pm. 7 hours = 25200 seconds, covering a 15:00 → 22:00 window.
+
 - `OnCalendar=*-*-* 00:00:00`: Schedules the job to run daily starting from midnight.
 
 - `RandomizedDelaySec=86400`: Adds a randomized delay of up to 86400 seconds (24 hours).
 
-- `Persistent=true`: Ensures that if the system is down during the scheduled time (e.g., midnight), the job will run as soon as the system comes back up, respecting the random delay.
+- `Persistent=true`: Ensures that if the system is down during the scheduled time (e.g., midnight), the job will run as soon as the system comes back up. If that's not what you want for this job, drop Persistent=true.
 
 
 #### 3, Enable and Start the Timer
@@ -190,8 +194,10 @@ systemctl start medel.timer
 Check when the job is next scheduled to run using the following command:
 
 ```bash
+systemctl list-timers medel.timer
+# or
 systemctl list-timers | grep medel
-
+# All timers
 systemctl list-timers --all
 ```
 

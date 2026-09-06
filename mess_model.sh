@@ -21,7 +21,8 @@ else
 fi
 
 # Define array of available analyzers
-MODELS=("llama" "claude" "gemini" "qwen" "gpt" "grok" "bedrock" "deepseek" "mistral")
+MODELS=("gemini" "qwen" "gpt" "grok" "bedrock" "deepseek")
+# MODELS=("llama" "claude" "gemini" "qwen" "gpt" "grok" "bedrock" "deepseek" "mistral")
 
 # Randomly select a model
 SELECTED_MODEL=${MODELS[$RANDOM % ${#MODELS[@]}]}

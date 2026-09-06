@@ -152,8 +152,7 @@ class MessModel:
                     "Ghost in the Shell",
                 ]),
                 "body": message,
-                "imageUrl": f"https://followcrom-online.s3.eu-west-2.amazonaws.com/notifications/images/medel_{selected_image}.jpg",
-                "url": "https://followcrom.com",
+                "imageUrl": f"https://followcrom-online.s3.eu-west-2.amazonaws.com/notifications/images/medel_{selected_image}.jpg"
             },
             "ttl": 60,
             "priority": "high",
