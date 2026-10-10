@@ -31,21 +31,59 @@ expo_push_token = os.getenv('EXPO_PUSH_TOKENS')
 # DynamoDB Table Name
 DYNAMODB_TABLE = "MedelLogs2"
 
-prompts = [
-    "Hola, soy Teed. Dame un pequeño recordatorio de atención plena para que me mantenga presente hoy.",
-    "Hola, soy Teed. ¿Somos todos psicológicamente frágiles? Responde conciso y directo.",
-    "Hola, soy Teed. La vida es desordenada, pero hermosa. ¿Cómo puedo acceder instantáneamente a la gratitud cuando lo olvido?",
-    "¿No es una locura que existamos?",
-    "Hola, soy Teed. Dame un pequeño recordatorio de atención plena para que me mantenga presente hoy.",
-    "Hola, soy Teed. Mi mente tiende a recordarme mis defectos. ¿Puedes darme una forma rápida y práctica de cambiar esa narrativa?",
-    "Hola, soy Teed. Recuérdame por qué vale la pena disfrutar incluso de las pequeñas alegrías.",
-    "La vida es un viaje extraño y maravilloso. ¿Cuál es un mantra rápido para disfrutar del viaje?",
-    "La vida es tan rica, ¿no es así?",
-    "Hola, soy Teed. Dame un micro-mantra para interrumpir mi autojuicio.",
-    "Hola, soy Teed. ¿Cómo puedo recordar que la vida es un viaje, no un destino?",
-    "Hola, soy Teed. ¿Cómo recuerdo que este momento es suficiente?", 
-    "Oye, soy Teed. Susurra un recordatorio de mi propia fuerza silenciosa.",
-    "Hola, soy Teed. ¿Qué rayo de perspectiva puedo tener cuando todo parece estancado?"
+MASTER_PROMPT = (
+    "Escribes un único mensaje diario para Teed, que lo leerá como notificación en su móvil. "
+    "Tu objetivo es sacudirle un poco y dejarle con ganas de vivir el día, no tranquilizarle con frases hechas.\n"
+    "Reglas:\n"
+    "- Escribe en español y háblale de tú.\n"
+    "- Máximo 90 palabras. Solo texto plano: sin markdown, sin listas, sin títulos.\n"
+    "- La primera frase es lo único que se ve en la vista previa: tiene que enganchar por sí sola, sin saludos ni preámbulos.\n"
+    "- Sé concreto: una imagen, una escena o un detalle preciso valen más que cualquier abstracción.\n"
+    "- Evita los tópicos de autoayuda ('respira hondo', 'vive el presente', 'eres suficiente', 'el viaje, no el destino').\n"
+    "- No inventes recuerdos ni detalles de la vida de Teed: no sabes nada de él.\n"
+    "- Termina con algo que Teed pueda hacer, mirar o preguntarse hoy.\n"
+)
+
+# Each message is a random voice x theme x form, so no two days sound alike
+voices = [
+    "un filósofo estoico que no pierde el tiempo con cumplidos",
+    "una astrónoma que no deja de asombrarse del tamaño del universo",
+    "un poeta que encuentra lo sagrado en lo cotidiano",
+    "un entrenador veterano que cree en Teed más que el propio Teed",
+    "una abuela sabia con mucho sentido del humor",
+    "un maestro zen travieso",
+    "una exploradora que escribe al final de una larga expedición",
+    "un amigo íntimo que dice la verdad con cariño",
+    "una naturalista fascinada por cómo sobrevive todo lo vivo",
+    "el propio Teed a los noventa años, escribiéndole al Teed de hoy",
+]
+
+themes = [
+    "la asombrosa improbabilidad de existir",
+    "el valor de empezar antes de sentirse preparado",
+    "la mortalidad como motivo para no posponer lo que importa",
+    "la gratitud por algo pequeño y muy concreto",
+    "convertir la autocrítica en curiosidad",
+    "la fuerza silenciosa que Teed ya ha demostrado otras veces",
+    "qué hacer cuando todo parece estancado",
+    "el asombro ante algo cotidiano que damos por hecho",
+    "la belleza del desorden de la vida",
+    "hacer hoy algo generoso por otra persona",
+    "el placer de hacer bien una sola cosa pequeña",
+    "el miedo como brújula que señala lo que importa",
+    "la paciencia de las cosas que crecen despacio",
+    "que este momento, tal como es, ya es suficiente",
+]
+
+forms = [
+    "una microhistoria de tres o cuatro frases con un giro final",
+    "un reto concreto para hoy que quepa en diez minutos",
+    "una pregunta incómoda pero cariñosa, y por qué merece respuesta",
+    "una metáfora sacada de la naturaleza o de la ciencia, llevada hasta el final",
+    "un hecho sorprendente y lo que implica para el día de hoy",
+    "una carta muy breve",
+    "un brindis",
+    "un aforismo original seguido de una sola frase que lo aterrice",
 ]
 
 @dataclass
@@ -89,8 +127,13 @@ class MessModel:
         try:
             model = llm.get_model(self.model_config.model_id)
             model.key = self.model_config.api_key
-            master_prompt = "Lo que sigue es una solicitud de atención plena práctica. Responde de forma breve, práctica y fácil de entender. Evita lo superfluo. Mantén un tono positivo y comprensivo."
-            prompt = f"{master_prompt}\n{random.choice(prompts)}"
+            prompt = (
+                f"{MASTER_PROMPT}\n"
+                f"Voz: {random.choice(voices)}.\n"
+                f"Tema: {random.choice(themes)}.\n"
+                f"Forma: {random.choice(forms)}."
+            )
+            logger.info(f"Prompt:\n{prompt}")
             response = model.prompt(prompt)
             message = str(response) if response else "No message generated."
             # logger.info(f"Message generated: {message}")
@@ -212,6 +255,7 @@ if __name__ == "__main__":
     try:
         parser = argparse.ArgumentParser()
         parser.add_argument('--model', type=str, default='gpt') # Model you want to use
+        parser.add_argument('--dry-run', action='store_true') # Print the message without logging or sending it
         args = parser.parse_args()
 
         model_name = args.model
@@ -219,7 +263,10 @@ if __name__ == "__main__":
 
         try:
             model = MessModel(model_name)
-            model.send_push_notification()
+            if args.dry_run:
+                print(model.generate_message())
+            else:
+                model.send_push_notification()
         except Exception as e:
             logger.error(f"Failed to send push notification using model '{model_name}': {e}")
             sys.exit(1)
