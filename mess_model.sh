@@ -21,11 +21,14 @@ else
 fi
 
 # Define array of available analyzers
-MODELS=("gemini" "qwen" "gpt" "grok" "bedrock" "deepseek")
+MODELS=("llama" "gemini" "qwen" "gpt" "grok" "bedrock" "deepseek" "mistral")
 # MODELS=("llama" "claude" "gemini" "qwen" "gpt" "grok" "bedrock" "deepseek" "mistral")
 
 # Randomly select a model
-SELECTED_MODEL=${MODELS[$RANDOM % ${#MODELS[@]}]}
+# SELECTED_MODEL=${MODELS[$RANDOM % ${#MODELS[@]}]}
+
+# Select a specific model every time
+SELECTED_MODEL="mistral"
 
 # Change to the appropriate directory
 cd "$SCRIPT_DIR" || {

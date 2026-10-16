@@ -23,7 +23,7 @@ logging.getLogger('botocore').setLevel(logging.WARNING)
 # Expo configuration
 EXPO_PUSH_ENDPOINT = "https://exp.host/--/api/v2/push/send"
 
-load_dotenv()
+load_dotenv(override=True)
 
 # Access the token
 expo_push_token = os.getenv('EXPO_PUSH_TOKENS')
@@ -32,58 +32,58 @@ expo_push_token = os.getenv('EXPO_PUSH_TOKENS')
 DYNAMODB_TABLE = "MedelLogs2"
 
 MASTER_PROMPT = (
-    "Escribes un único mensaje diario para Teed, que lo leerá como notificación en su móvil. "
-    "Tu objetivo es sacudirle un poco y dejarle con ganas de vivir el día, no tranquilizarle con frases hechas.\n"
-    "Reglas:\n"
-    "- Escribe en español y háblale de tú.\n"
-    "- Máximo 90 palabras. Solo texto plano: sin markdown, sin listas, sin títulos.\n"
-    "- La primera frase es lo único que se ve en la vista previa: tiene que enganchar por sí sola, sin saludos ni preámbulos.\n"
-    "- Sé concreto: una imagen, una escena o un detalle preciso valen más que cualquier abstracción.\n"
-    "- Evita los tópicos de autoayuda ('respira hondo', 'vive el presente', 'eres suficiente', 'el viaje, no el destino').\n"
-    "- No inventes recuerdos ni detalles de la vida de Teed: no sabes nada de él.\n"
-    "- Termina con algo que Teed pueda hacer, mirar o preguntarse hoy.\n"
+    "You write a single daily message for Teed, who will read it as a notification on his phone. "
+    "Your goal is to shake him up a little and leave him eager to live the day, not to soothe him with stock phrases.\n"
+    "Rules:\n"
+    "- Write in English and address him directly as 'you'.\n"
+    "- 90 words maximum. Plain text only: no markdown, no lists, no headings.\n"
+    "- The first sentence is the only thing visible in the preview: it has to hook on its own, with no greetings or preamble.\n"
+    "- Be concrete: an image, a scene or a precise detail is worth more than any abstraction.\n"
+    "- Avoid self-help clichés ('take a deep breath', 'live in the moment', 'you are enough', 'the journey, not the destination').\n"
+    "- Don't invent memories or details of Teed's life: you know nothing about him.\n"
+    "- End with something Teed can do, look at or ask himself today.\n"
 )
 
 # Each message is a random voice x theme x form, so no two days sound alike
 voices = [
-    "un filósofo estoico que no pierde el tiempo con cumplidos",
-    "una astrónoma que no deja de asombrarse del tamaño del universo",
-    "un poeta que encuentra lo sagrado en lo cotidiano",
-    "un entrenador veterano que cree en Teed más que el propio Teed",
-    "una abuela sabia con mucho sentido del humor",
-    "un maestro zen travieso",
-    "una exploradora que escribe al final de una larga expedición",
-    "un amigo íntimo que dice la verdad con cariño",
-    "una naturalista fascinada por cómo sobrevive todo lo vivo",
-    "el propio Teed a los noventa años, escribiéndole al Teed de hoy",
+    "a Stoic philosopher who doesn't waste time on compliments",
+    "an astronomer who never stops marvelling at the size of the universe",
+    "a poet who finds the sacred in the everyday",
+    "a veteran coach who believes in Teed more than Teed does",
+    "a wise grandmother with a great sense of humour",
+    "a mischievous Zen master",
+    "an explorer writing at the end of a long expedition",
+    "a close friend who tells the truth with affection",
+    "a naturalist fascinated by how every living thing survives",
+    "Teed himself at ninety, writing to today's Teed",
 ]
 
 themes = [
-    "la asombrosa improbabilidad de existir",
-    "el valor de empezar antes de sentirse preparado",
-    "la mortalidad como motivo para no posponer lo que importa",
-    "la gratitud por algo pequeño y muy concreto",
-    "convertir la autocrítica en curiosidad",
-    "la fuerza silenciosa que Teed ya ha demostrado otras veces",
-    "qué hacer cuando todo parece estancado",
-    "el asombro ante algo cotidiano que damos por hecho",
-    "la belleza del desorden de la vida",
-    "hacer hoy algo generoso por otra persona",
-    "el placer de hacer bien una sola cosa pequeña",
-    "el miedo como brújula que señala lo que importa",
-    "la paciencia de las cosas que crecen despacio",
-    "que este momento, tal como es, ya es suficiente",
+    "the astonishing improbability of existing",
+    "the courage to start before feeling ready",
+    "mortality as a reason not to put off what matters",
+    "gratitude for something small and very specific",
+    "turning self-criticism into curiosity",
+    "the quiet strength Teed has already shown before",
+    "what to do when everything feels stuck",
+    "wonder at something everyday that we take for granted",
+    "the beauty of life's messiness",
+    "doing something generous for someone else today",
+    "the pleasure of doing one small thing well",
+    "fear as a compass pointing to what matters",
+    "the patience of things that grow slowly",
+    "that this moment, just as it is, is already enough",
 ]
 
 forms = [
-    "una microhistoria de tres o cuatro frases con un giro final",
-    "un reto concreto para hoy que quepa en diez minutos",
-    "una pregunta incómoda pero cariñosa, y por qué merece respuesta",
-    "una metáfora sacada de la naturaleza o de la ciencia, llevada hasta el final",
-    "un hecho sorprendente y lo que implica para el día de hoy",
-    "una carta muy breve",
-    "un brindis",
-    "un aforismo original seguido de una sola frase que lo aterrice",
+    "a micro-story of three or four sentences with a twist at the end",
+    "a concrete challenge for today that fits in ten minutes",
+    "an uncomfortable but caring question, and why it deserves an answer",
+    "a metaphor drawn from nature or science, carried all the way through",
+    "a surprising fact and what it means for today",
+    "a very short letter",
+    "a toast",
+    "an original aphorism followed by a single sentence that grounds it",
 ]
 
 @dataclass
@@ -91,7 +91,8 @@ class LLMConfig:
     name: str
     model_id: str
     api_key_env: str
-    
+    max_tokens: Optional[int] = None  # Groq's on_demand tier caps output at 1000 tokens/min
+
     @property
     def api_key(self) -> Optional[str]:
         return os.getenv(self.api_key_env)
@@ -101,8 +102,8 @@ class MessModel:
         'gpt': LLMConfig('GPT', 'openai/gpt-5', 'OPENAI_API_KEY'),
         'claude': LLMConfig('Claude', 'claude-sonnet-5', 'ANTHROPIC_API_KEY'),
         'gemini': LLMConfig('Gemini', 'gemini-3.5-flash-lite', 'GOOGLE_API_KEY'),
-        'llama': LLMConfig('GPT-OSS-120B', 'groq/openai/gpt-oss-120b', 'GROQ'),
-        'qwen': LLMConfig('Qwen', 'groq/qwen/qwen3.8-27b', 'GROQ'),
+        'llama': LLMConfig('GPT-OSS-120B', 'groq/openai/gpt-oss-120b', 'GROQ', max_tokens=2048),  # reasoning tokens count too
+        'qwen': LLMConfig('Qwen', 'groq/qwen/qwen3.8-27b', 'GROQ', max_tokens=900),
         'grok': LLMConfig('Grok', 'grok-4-latest', 'XAI_API_KEY'),
         'bedrock': LLMConfig('Bedrock', 'nova-pro', 'AWS_API_KEY'),
         'deepseek': LLMConfig('Deepseek', 'deepseek-chat', 'DEEPSEEK_API_KEY'),
@@ -129,12 +130,13 @@ class MessModel:
             model.key = self.model_config.api_key
             prompt = (
                 f"{MASTER_PROMPT}\n"
-                f"Voz: {random.choice(voices)}.\n"
-                f"Tema: {random.choice(themes)}.\n"
-                f"Forma: {random.choice(forms)}."
+                f"Voice: {random.choice(voices)}.\n"
+                f"Theme: {random.choice(themes)}.\n"
+                f"Form: {random.choice(forms)}."
             )
             logger.info(f"Prompt:\n{prompt}")
-            response = model.prompt(prompt)
+            options = {'max_tokens': self.model_config.max_tokens} if self.model_config.max_tokens else {}
+            response = model.prompt(prompt, **options)
             message = str(response) if response else "No message generated."
             # logger.info(f"Message generated: {message}")
             return message
@@ -197,7 +199,7 @@ class MessModel:
                 "body": message,
                 "imageUrl": f"https://followcrom-online.s3.eu-west-2.amazonaws.com/notifications/images/medel_{selected_image}.jpg"
             },
-            "ttl": 60,
+            "ttl": 43200,  # 12 hours, so the message still arrives if the phone is offline when it's sent
             "priority": "high",
         }
 
