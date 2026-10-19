@@ -158,20 +158,16 @@ class MessModel:
         return int(response['Attributes']['current_id']['N'])
 
     def log_to_dynamodb(self, date: str, model: str, message: str, id: int) -> None:
-        try:
-            self.dynamodb_client.put_item(
-                TableName=DYNAMODB_TABLE,
-                Item={
-                    'id': {'N': str(id)},
-                    'date': {'S': date},
-                    'model': {'S': model},
-                    'message': {'S': message}
-                }
-            )
-            logger.info(f"Logged to DynamoDB: id={id}, date={date}, model={model}")
-        except (BotoCoreError, ClientError) as e:
-            logger.error(f"Failed to log to DynamoDB: {e}")
-            sys.exit(1)
+        self.dynamodb_client.put_item(
+            TableName=DYNAMODB_TABLE,
+            Item={
+                'id': {'N': str(id)},
+                'date': {'S': date},
+                'model': {'S': model},
+                'message': {'S': message}
+            }
+        )
+        logger.info(f"Logged to DynamoDB: id={id}, date={date}, model={model}")
 
     def create_notification_payload(self, message: str) -> Dict[str, Any]:
         title = "Message from a Model"
@@ -210,10 +206,16 @@ class MessModel:
                 logger.error("No message generated.")
                 return
             
-            # Log to DynamoDB with UK time
-            date = datetime.now(ZoneInfo("Europe/London")).strftime('%Y-%m-%dT%H:%M:%S')
-            next_id = self.get_next_id()  # Get the next incremented id
-            self.log_to_dynamodb(date, self.model_config.name, message, next_id)
+            # Log to DynamoDB with UK time. A logging failure shouldn't stop today's
+            # notification, so remember it and fail the run once the push is sent.
+            dynamodb_failed = False
+            try:
+                date = datetime.now(ZoneInfo("Europe/London")).strftime('%Y-%m-%dT%H:%M:%S')
+                next_id = self.get_next_id()  # Get the next incremented id
+                self.log_to_dynamodb(date, self.model_config.name, message, next_id)
+            except (BotoCoreError, ClientError) as e:
+                logger.error(f"Failed to log to DynamoDB: {e}")
+                dynamodb_failed = True
 
             # Send push notification
             payload = self.create_notification_payload(message)
@@ -247,6 +249,9 @@ class MessModel:
                 sys.exit(1)
 
             logger.info("Notification sent successfully: %s", resp_json)
+
+            if dynamodb_failed:
+                sys.exit(1)
         except Exception as e:
             logger.error(f"Error in send_push_notification: {e}")
             sys.exit(1)

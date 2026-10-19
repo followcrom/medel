@@ -30,25 +30,47 @@ MODELS=("llama" "gemini" "qwen" "gpt" "grok" "bedrock" "deepseek" "mistral")
 # Select a specific model every time
 SELECTED_MODEL="mistral"
 
+# Every run is wrapped in a START banner and a single RESULT line, so runs
+# are easy to tell apart and `grep RESULT medel_analysis.log` gives a history.
+RULE="================================================================"
+START_TS=$(date +%s)
+
+log_start() {
+    {
+        echo "$RULE"
+        echo "START  $(date '+%Y-%m-%d %H:%M:%S %Z')  model=$SELECTED_MODEL"
+        echo "$RULE"
+    } >> "$LOG_FILE"
+}
+
+# log_end <exit code> [reason]
+log_end() {
+    local secs=$(( $(date +%s) - START_TS ))
+    {
+        echo "----------------------------------------------------------------"
+        if [ "$1" -eq 0 ]; then
+            echo "RESULT: SUCCESS  $(date '+%Y-%m-%d %H:%M:%S %Z')  model=$SELECTED_MODEL  (${secs}s)"
+        else
+            echo "RESULT: FAILED (exit $1)  $(date '+%Y-%m-%d %H:%M:%S %Z')  model=$SELECTED_MODEL  (${secs}s)${2:+  - $2}"
+        fi
+        echo ""
+        echo ""
+    } >> "$LOG_FILE"
+}
+
+log_start
+
 # Change to the appropriate directory
 cd "$SCRIPT_DIR" || {
-    echo "$(date) - Failed to cd into $SCRIPT_DIR" >> "$LOG_FILE"
+    log_end 1 "failed to cd into $SCRIPT_DIR"
     exit 1
 }
 
 # Check if the virtual environment exists
 if [ ! -d "$VENV_PATH" ]; then
-    echo "$(date) - Virtual environment not found at $VENV_PATH" >> "$LOG_FILE"
+    log_end 1 "virtual environment not found at $VENV_PATH"
     exit 1
 fi
-
-# Log start
-{
-    echo "$(date)"
-    echo "Generating a message from $SELECTED_MODEL."
-    echo "Running Python script..."
-    echo "Python script output:"
-} >> "$LOG_FILE"
 
 # Run Python script and capture output
 python_script_output=$("$VENV_PATH/bin/python" "$SCRIPT_PATH" --model "$SELECTED_MODEL" 2>&1)
@@ -59,17 +81,11 @@ echo "$python_script_output" >> "$LOG_FILE"
 
 # Handle success/failure
 if [ $python_exit_code -eq 0 ]; then
-    echo "Job complete!" >> "$LOG_FILE"
-    echo "" >> "$LOG_FILE"
+    log_end 0
 else
-    {
-        echo "Python script failed with exit code $python_exit_code"
-        echo "Output: $python_script_output"
-    } >> "$LOG_FILE"
-
     # Send failure email, if this environment has a mail command (dobox does; local dev usually doesn't)
     if command -v mail >/dev/null 2>&1; then
-        echo "Email sent regarding Python script failure." >> "$LOG_FILE"
+        email_note="failure email sent"
         cat << EOF | mail -s "Medel Error" noreply@followcrom.com
 $(date) - Medel Error Notification
 
@@ -81,8 +97,9 @@ Output:
 $python_script_output
 EOF
     else
-        echo "No mail command available - skipping failure email." >> "$LOG_FILE"
+        email_note="no mail command, failure email skipped"
     fi
 
+    log_end $python_exit_code "$email_note"
     exit $python_exit_code
 fi
