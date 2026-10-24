@@ -34,6 +34,7 @@ DYNAMODB_TABLE = "MedelLogs2"
 MASTER_PROMPT = (
     "You write a single daily message for Teed, who will read it as a notification on his phone. "
     "Your goal is to shake him up a little and leave him eager to live the day, not to soothe him with stock phrases.\n"
+    "Every message is a quiet memento mori: the days are numbered, and that is a reason to live this one fully, never a reason for gloom.\n"
     "Rules:\n"
     "- Keep it short, 40 to 80 words, with no greetings or preamble.\n"
     "- The notification preview cuts off after about 50 characters, so open with a short first sentence that hooks on its own.\n"
