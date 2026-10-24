@@ -35,13 +35,13 @@ MASTER_PROMPT = (
     "You write a single daily message for Teed, who will read it as a notification on his phone. "
     "Your goal is to shake him up a little and leave him eager to live the day, not to soothe him with stock phrases.\n"
     "Rules:\n"
-    "- Write in English and address him directly as 'you'.\n"
-    "- 90 words maximum. Plain text only: no markdown, no lists, no headings.\n"
-    "- The first sentence is the only thing visible in the preview: it has to hook on its own, with no greetings or preamble.\n"
-    "- Be concrete: an image, a scene or a precise detail is worth more than any abstraction.\n"
+    "- Keep it short, 40 to 80 words, with no greetings or preamble.\n"
+    "- The notification preview cuts off after about 50 characters, so open with a short first sentence that hooks on its own.\n"
+    "- Plain text only: no markdown, no lists, no headings.\n"
+    "- Write in a literary style. A turn of phrase can be as impactful as the message therein.\n"
     "- Avoid self-help clichés ('take a deep breath', 'live in the moment', 'you are enough', 'the journey, not the destination').\n"
-    "- Don't invent memories or details of Teed's life: you know nothing about him.\n"
-    "- End with something Teed can do, look at or ask himself today.\n"
+    "- Leave Teed with something for today: a thing to try, notice or wonder about. A hint is enough; it doesn't have to be an instruction.\n"
+    "- Output only the message text itself, with no quotes, title or introduction.\n"
 )
 
 # Each message is a random voice x theme x form, so no two days sound alike
@@ -55,7 +55,7 @@ voices = [
     "an explorer writing at the end of a long expedition",
     "a close friend who tells the truth with affection",
     "a naturalist fascinated by how every living thing survives",
-    "Teed himself at ninety, writing to today's Teed",
+    "Teed himself at ninety, writing to today's Teed (keep any memories vague, never specific events)",
 ]
 
 themes = [
@@ -64,7 +64,7 @@ themes = [
     "mortality as a reason not to put off what matters",
     "gratitude for something small and very specific",
     "turning self-criticism into curiosity",
-    "the quiet strength Teed has already shown before",
+    "the strength that only shows up once you're already in the thick of it",
     "what to do when everything feels stuck",
     "wonder at something everyday that we take for granted",
     "the beauty of life's messiness",
@@ -72,7 +72,7 @@ themes = [
     "the pleasure of doing one small thing well",
     "fear as a compass pointing to what matters",
     "the patience of things that grow slowly",
-    "that this moment, just as it is, is already enough",
+    "today is not a rehearsal for some better day later",
 ]
 
 forms = [
@@ -80,7 +80,7 @@ forms = [
     "a concrete challenge for today that fits in ten minutes",
     "an uncomfortable but caring question, and why it deserves an answer",
     "a metaphor drawn from nature or science, carried all the way through",
-    "a surprising fact and what it means for today",
+    "a surprising but true, well-established fact and what it means for today",
     "a very short letter",
     "a toast",
     "an original aphorism followed by a single sentence that grounds it",
@@ -99,12 +99,12 @@ class LLMConfig:
 
 class MessModel:
     AVAILABLE_MODELS = {
-        'gpt': LLMConfig('GPT', 'openai/gpt-5', 'OPENAI_API_KEY'),
-        'claude': LLMConfig('Claude', 'claude-sonnet-5', 'ANTHROPIC_API_KEY'),
-        'gemini': LLMConfig('Gemini', 'gemini-3.5-flash-lite', 'GOOGLE_API_KEY'),
+        'gpt': LLMConfig('GPT 6 Sol', 'gpt-6-sol', 'OPENAI_API_KEY'),
+        'claude': LLMConfig('Claude', 'claude-sonnet-5.5', 'ANTHROPIC_API_KEY'),
+        'gemini': LLMConfig('Gemini 4', 'gemini-4-argon', 'GOOGLE_API_KEY'),
         'llama': LLMConfig('GPT-OSS-120B', 'groq/openai/gpt-oss-120b', 'GROQ', max_tokens=2048),  # reasoning tokens count too
         'qwen': LLMConfig('Qwen', 'groq/qwen/qwen3.8-27b', 'GROQ', max_tokens=900),
-        'grok': LLMConfig('Grok', 'grok-4-latest', 'XAI_API_KEY'),
+        'grok': LLMConfig('Grok 4', 'grok-4-latest', 'XAI_API_KEY'),
         'bedrock': LLMConfig('Bedrock', 'nova-pro', 'AWS_API_KEY'),
         'deepseek': LLMConfig('Deepseek', 'deepseek-chat', 'DEEPSEEK_API_KEY'),
         'mistral': LLMConfig('Mistral', 'mistral/mistral-medium-latest', 'MISTRAL_API_KEY'),
@@ -128,11 +128,17 @@ class MessModel:
         try:
             model = llm.get_model(self.model_config.model_id)
             model.key = self.model_config.api_key
+            # Keep the choices so they can be logged to DynamoDB alongside the message
+            self.choices = {
+                'voice': random.choice(voices),
+                'theme': random.choice(themes),
+                'form': random.choice(forms),
+            }
             prompt = (
                 f"{MASTER_PROMPT}\n"
-                f"Voice: {random.choice(voices)}.\n"
-                f"Theme: {random.choice(themes)}.\n"
-                f"Form: {random.choice(forms)}."
+                f"Voice: {self.choices['voice']}.\n"
+                f"Theme: {self.choices['theme']}.\n"
+                f"Form: {self.choices['form']}."
             )
             logger.info(f"Prompt:\n{prompt}")
             options = {'max_tokens': self.model_config.max_tokens} if self.model_config.max_tokens else {}
@@ -157,14 +163,17 @@ class MessModel:
         )
         return int(response['Attributes']['current_id']['N'])
 
-    def log_to_dynamodb(self, date: str, model: str, message: str, id: int) -> None:
+    def log_to_dynamodb(self, date: str, model: str, message: str, id: int, choices: Dict[str, str]) -> None:
         self.dynamodb_client.put_item(
             TableName=DYNAMODB_TABLE,
             Item={
                 'id': {'N': str(id)},
                 'date': {'S': date},
                 'model': {'S': model},
-                'message': {'S': message}
+                'message': {'S': message},
+                'voice': {'S': choices['voice']},
+                'theme': {'S': choices['theme']},
+                'form': {'S': choices['form']},
             }
         )
         logger.info(f"Logged to DynamoDB: id={id}, date={date}, model={model}")
@@ -212,7 +221,7 @@ class MessModel:
             try:
                 date = datetime.now(ZoneInfo("Europe/London")).strftime('%Y-%m-%dT%H:%M:%S')
                 next_id = self.get_next_id()  # Get the next incremented id
-                self.log_to_dynamodb(date, self.model_config.name, message, next_id)
+                self.log_to_dynamodb(date, self.model_config.name, message, next_id, self.choices)
             except (BotoCoreError, ClientError) as e:
                 logger.error(f"Failed to log to DynamoDB: {e}")
                 dynamodb_failed = True

@@ -51,7 +51,9 @@ llm mistral refresh
 
 Not every plugin supports a live refresh - check `llm <plugin-command> --help`.
 
-Some plugins (e.g. `llm-deepseek`) only register a model if a key is already stored via `llm keys set <provider>` - setting `model.key` at runtime in the app's own code isn't enough for the model to show up at all. And on the box, `medel.service` runs as **root**, which has its own `llm` config under `/root/.config/io.datasette.llm/` - separate from any other user's, including `claudeops`. Any `llm keys set` or `llm ... refresh` needs to be run as root to actually take effect in production.
+Some plugins (e.g. `llm-deepseek`) only register a model if a key is already stored via `llm keys set <provider>` - setting `model.key` at runtime in the app's own code isn't enough for the model to show up at all. On the box, `medel.service` runs as **followcrom** (`User=followcrom`), so production uses `~followcrom/.config/io.datasette.llm/` and `~followcrom/.aws/`. Run `llm keys set` and `llm ... refresh` as followcrom, not with `sudo` - root has its own separate config.
+
+A key stored in `keys.json` takes precedence over the `LLM_<PROVIDER>_KEY` environment variable, so a stale stored key makes `llm <provider> refresh` fail with a 401 even when `.env` has the right key. Fix it with `llm keys set <provider> --value "<key from .env>"`.
 
 List all available models:
 
@@ -121,7 +123,7 @@ The message is then sent as a push notification to the **RanDOM WisDOM** app.
 
 ### 📝 DynamoDB 📦
 
-The _date, model_ and _message_ are logged to the `MedelLogs2` DynamoDB table.
+The _date, model, message_ and the prompt's _voice, theme_ and _form_ are logged to the `MedelLogs2` DynamoDB table.
 
 👉 [MedelLogs2](https://eu-west-2.console.aws.amazon.com/dynamodbv2/home?region=eu-west-2#table?name=MedelLogs2)
 
@@ -149,6 +151,7 @@ Save this as `/etc/systemd/system/medel.service`
 Description=Run Medel Shell Script
 
 [Service]
+User=followcrom
 ExecStart=/bin/bash /var/www/domdom/mess_model.sh
 ```
 
@@ -257,7 +260,7 @@ journalctl -u medel.service -p err
 
 ## 🪵 Logging to DynamoDB 📊
 
-The application logs messages to a DynamoDB table named `MedelLogs2`. Each log entry includes a unique ID, the date, the model used, and the generated message.
+The application logs messages to a DynamoDB table named `MedelLogs2`. Each log entry includes a unique ID, the date, the model used, the generated message, and the voice, theme and form chosen for the prompt.
 
 #### Counter Item ⚠️
 
@@ -276,7 +279,7 @@ Your `get_next_id` function actively interacts with this specific item every sin
 
 ## 🤔 Issues 🛠️
 
-`message_model.py` sets the API key at runtime via `model.key = self.model_config.api_key` (sourced from `.env`). Some plugins (e.g. `llm-deepseek`) still need a key registered via `llm keys set <provider>` before they'll even list a model - see **⚠️ Model registries go stale** above for that, plus the root-vs-other-user config gotcha on **dobox**.
+`message_model.py` sets the API key at runtime via `model.key = self.model_config.api_key` (sourced from `.env`). Some plugins (e.g. `llm-deepseek`) still need a key registered via `llm keys set <provider>` before they'll even list a model - see **⚠️ Model registries go stale** above for that, plus which user's config is used on **dobox**.
 
 ```bash
 llm keys path
